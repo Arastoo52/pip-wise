@@ -1,0 +1,772 @@
+/* ==========================================================================
+   InteractiveRobot.css - 6-Character Interactive Companions Squad
+   Extracted & self-contained with silky smooth keyframes
+   ========================================================================== */
+
+/* Robot Stage Container */
+.robot-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+  max-width: 440px;
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+.robot-stage:hover .robot-bubble {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Speech / Reaction Bubble */
+.robot-bubble {
+  position: absolute;
+  top: -42px;
+  background: #0f172a;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.95);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 20;
+  white-space: nowrap;
+}
+
+.robot-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: #0f172a transparent transparent;
+}
+
+.robot-bubble.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* SVG Sizing - Zero filter drop-shadow for 60fps performance */
+.robot-svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  overflow: visible;
+}
+
+/* =========================================================
+   ANIMATIONS: Robot Neck Left-Right Looking Around
+   ========================================================= */
+
+.robot-head-body.idle-look-around {
+  transform-origin: 108px 240px;
+  animation: robotLookAround 4.0s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+.robot-head-body.focus-right {
+  transform-origin: 108px 240px;
+  transform: rotate(8deg) translateX(4px) translateY(-1px);
+  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.robot-head-body.interact-tilt-pink {
+  transform-origin: 108px 240px;
+  transform: rotate(4deg);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes robotLookAround {
+  0%, 100% {
+    transform: rotate(0deg) translateX(0);
+  }
+  20%, 35% {
+    transform: rotate(-7deg) translateX(-3.5px) translateY(-0.5px);
+  }
+  50% {
+    transform: rotate(0deg) translateX(0);
+  }
+  68%, 82% {
+    transform: rotate(7deg) translateX(3.5px) translateY(-1px);
+  }
+  92% {
+    transform: rotate(0deg) translateX(0);
+  }
+}
+
+/* =========================================================
+   PINK COMPANION: Music-Listening Grooving Effect
+   ========================================================= */
+
+.pink-body-head {
+  transform-origin: 275px 242px;
+  animation: pinkMusicVibe 1.8s ease-in-out infinite;
+}
+
+@keyframes pinkMusicVibe {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4.5px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(1.5px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+}
+
+.pink-earcup {
+  transform-origin: center;
+  animation: earcupBass 0.675s ease-in-out infinite alternate;
+}
+
+@keyframes earcupBass {
+  from {
+    opacity: 0.85;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+.music-wave {
+  animation: soundWavePulse 1.35s ease-out infinite;
+}
+
+.earcup-group-left .music-wave {
+  transform-origin: 198px 145px;
+}
+
+.earcup-group-right .music-wave {
+  transform-origin: 350px 145px;
+}
+
+.music-wave.wave-1 {
+  animation-delay: 0s;
+}
+
+.music-wave.wave-2 {
+  animation-delay: 0.38s;
+}
+
+@keyframes soundWavePulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+.music-note {
+  animation: floatMusicNote 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.music-note.note-1 { animation-delay: 0s; }
+.music-note.note-2 { animation-delay: 0.8s; }
+.music-note.note-3 { animation-delay: 1.6s; }
+
+@keyframes floatMusicNote {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg) scale(0.7);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-10px) rotate(-12deg) scale(1);
+  }
+  65% {
+    opacity: 0.85;
+    transform: translateY(-26px) rotate(14deg) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-44px) rotate(-8deg) scale(0.8);
+  }
+}
+
+/* =========================================================
+   GOLDEN STAR CHARACTER ON STILTS
+   ========================================================= */
+
+.star-sway-body {
+  transform-origin: 388px 145px;
+  animation: starSmoothSway 3.6s ease-in-out infinite;
+}
+
+@keyframes starSmoothSway {
+  0%, 100% {
+    transform: rotate(0deg) translateY(0) scale(1);
+  }
+  25% {
+    transform: rotate(-3.5deg) translateY(-5px) scale(1.015);
+  }
+  50% {
+    transform: rotate(0deg) translateY(-1px) scale(1);
+  }
+  75% {
+    transform: rotate(3.5deg) translateY(-5px) scale(1.015);
+  }
+}
+
+.star-shimmer-overlay {
+  animation: starShimmer 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes starShimmer {
+  0% { opacity: 0.05; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.05; }
+}
+
+.star-left-arm {
+  transform-origin: 358px 138px;
+  animation: starArmWaveLeft 2.8s ease-in-out infinite;
+}
+
+.star-right-arm {
+  transform-origin: 420px 138px;
+  animation: starArmWaveRight 2.8s ease-in-out infinite;
+}
+
+@keyframes starArmWaveLeft {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-6deg) translateY(-3px); }
+  60% { transform: rotate(3deg) translateY(1px); }
+}
+
+@keyframes starArmWaveRight {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(8deg) translateY(-4px); }
+  55% { transform: rotate(-4deg) translateY(2px); }
+  80% { transform: rotate(3deg) translateY(-1px); }
+}
+
+.clinging-pet {
+  transform-origin: 316px 105px;
+  animation: petWiggleLively 1.8s ease-in-out infinite;
+}
+
+@keyframes petWiggleLively {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20% { transform: rotate(-6deg) translateY(-2px); }
+  40% { transform: rotate(3deg) translateY(1px); }
+  60% { transform: rotate(-4deg) translateY(-1.5px); }
+  80% { transform: rotate(2deg) translateY(0.5px); }
+}
+
+.star-mouth-realistic {
+  transform-origin: 388px 126px;
+  animation: starMouthTalkNatural 2.6s cubic-bezier(0.38, 0, 0.24, 1) infinite;
+}
+
+.star-mouth-inner {
+  animation: starMouthInnerFade 2.6s cubic-bezier(0.38, 0, 0.24, 1) infinite;
+}
+
+@keyframes starMouthTalkNatural {
+  0%, 100% { transform: scale(0.96, 0.16); }
+  14% { transform: scale(0.96, 0.16); }
+  26% { transform: scale(1.0, 0.75); }
+  38% { transform: scale(1.06, 1.15); }
+  50% { transform: scale(1.0, 0.55); }
+  62% { transform: scale(1.05, 1.08); }
+  74% { transform: scale(0.98, 0.45); }
+  86% { transform: scale(0.96, 0.18); }
+  92% { transform: scale(0.96, 0.16); }
+}
+
+@keyframes starMouthInnerFade {
+  0%, 14%, 88%, 100% { opacity: 0; }
+  24%, 76% { opacity: 1; }
+}
+
+.star-stilt-left {
+  transform-origin: 376px 295px;
+  animation: stiltBounceLeft 3.2s ease-in-out infinite;
+}
+
+.star-stilt-right {
+  transform-origin: 399px 295px;
+  animation: stiltBounceRight 3.2s ease-in-out infinite;
+}
+
+@keyframes stiltBounceLeft {
+  0%, 100% { transform: scaleY(1); }
+  28% { transform: scaleY(0.95); }
+  62% { transform: scaleY(1.02); }
+  84% { transform: scaleY(0.97); }
+}
+
+@keyframes stiltBounceRight {
+  0%, 100% { transform: scaleY(1); }
+  22% { transform: scaleY(1.02); }
+  55% { transform: scaleY(0.96); }
+  78% { transform: scaleY(1.01); }
+}
+
+/* =========================================================
+   TEAL CUBE CHARACTER ANIMATIONS
+   ========================================================= */
+
+.teal-cube-body {
+  transform-origin: 388px 280px;
+  animation: cubeJellyBounce 2.8s ease-in-out infinite;
+}
+
+@keyframes cubeJellyBounce {
+  0%, 100% { transform: scale(1, 1) translateY(0) rotate(0deg); }
+  25% { transform: scale(0.96, 1.04) translateY(-5px) rotate(1deg); }
+  50% { transform: scale(1, 1) translateY(0) rotate(0deg); }
+  75% { transform: scale(1.04, 0.96) translateY(2px) rotate(-1deg); }
+}
+
+.cube-left-arm {
+  transform-origin: 338px 274px;
+  animation: cubeArmSwingLeft 2.6s ease-in-out infinite;
+}
+
+.cube-right-arm {
+  transform-origin: 438px 274px;
+  animation: cubeArmSwingRight 2.6s ease-in-out infinite;
+}
+
+@keyframes cubeArmSwingLeft {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-12deg) translateX(-3px); }
+  50% { transform: rotate(5deg) translateX(1px); }
+  75% { transform: rotate(-8deg) translateX(-2px); }
+}
+
+@keyframes cubeArmSwingRight {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(10deg) translateX(2px); }
+  45% { transform: rotate(-6deg) translateX(-1px); }
+  70% { transform: rotate(14deg) translateX(3px); }
+  90% { transform: rotate(-3deg) translateX(-1px); }
+}
+
+.cube-eyes-group {
+  transform-origin: 388px 256px;
+  animation: cubeEyeWiggle 3s ease-in-out infinite;
+}
+
+@keyframes cubeEyeWiggle {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  15% { transform: translateY(-1px) scaleY(1.1); }
+  30% { transform: translateY(0) scaleY(0.85); }
+  45% { transform: translateY(-0.5px) scaleY(1.05); }
+  60% { transform: translateY(0) scaleY(1); }
+}
+
+.cube-mouth-group {
+  transform-origin: 388px 275px;
+  animation: cubeMouthCheer 2.2s ease-in-out infinite;
+}
+
+@keyframes cubeMouthCheer {
+  0%, 100% { transform: scale(1) translateY(0); }
+  30% { transform: scale(1.15, 1.2) translateY(-1px); }
+  60% { transform: scale(0.95, 0.9) translateY(0.5px); }
+}
+
+.cube-left-foot {
+  transform-origin: 363px 320px;
+  animation: cubeFootTapLeft 1.4s ease-in-out infinite;
+}
+
+.cube-right-foot {
+  transform-origin: 415px 320px;
+  animation: cubeFootTapRight 1.4s ease-in-out infinite 0.7s;
+}
+
+@keyframes cubeFootTapLeft {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-8deg) translateY(-3px); }
+}
+
+@keyframes cubeFootTapRight {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(8deg) translateY(-3px); }
+}
+
+.cube-float-particle {
+  animation: cubeParticleFloat 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.cube-float-particle.particle-1 { animation-delay: 0s; }
+.cube-float-particle.particle-2 { animation-delay: 1.2s; }
+.cube-float-particle.particle-3 { animation-delay: 2.4s; }
+
+@keyframes cubeParticleFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  20% { opacity: 1; transform: translateY(-8px) scale(1); }
+  60% { opacity: 0.7; transform: translateY(-22px) scale(1.1) rotate(15deg); }
+  100% { opacity: 0; transform: translateY(-38px) scale(0.6) rotate(-10deg); }
+}
+
+/* =========================================================
+   ORANGE FIGURE-8 CHARACTER ANIMATIONS
+   ========================================================= */
+
+.orange-body-sway {
+  transform-origin: 468px 320px;
+  animation: orangeBodyBreathe 2.4s ease-in-out infinite;
+}
+
+@keyframes orangeBodyBreathe {
+  0%, 100% { transform: rotate(0deg) scale(1, 1); }
+  40%, 55% { transform: rotate(1deg) scale(0.99, 1.01); }
+  76% { transform: rotate(-0.5deg) scale(1.02, 0.98); }
+}
+
+.orange-head-bob {
+  transform-origin: 468px 182px;
+  animation: orangeHeadSmoothBounce 2.4s ease-in-out infinite;
+}
+
+@keyframes orangeHeadSmoothBounce {
+  0%, 100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  16% { transform: translateY(2px) scale(1.04, 0.95) rotate(-1deg); }
+  40% { transform: translateY(-14px) scale(0.97, 1.04) rotate(-2.5deg); }
+  52% { transform: translateY(-15px) scale(1, 1.01) rotate(-2deg); }
+  72% { transform: translateY(1.5px) scale(1.04, 0.96) rotate(0.5deg); }
+  84% { transform: translateY(-2.5px) scale(0.99, 1.01) rotate(0deg); }
+  92% { transform: translateY(0) scale(1, 1) rotate(0deg); }
+}
+
+.orange-left-arm {
+  transform-origin: 436px 218px;
+  animation: orangeArmWave 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes orangeArmWave {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-6deg) translateY(-1.5px); }
+}
+
+.orange-mouth-realistic {
+  transform-origin: 468px 231px;
+  animation: orangeMouthTalkNatural 2.4s cubic-bezier(0.38, 0, 0.24, 1) infinite;
+}
+
+.orange-mouth-inner {
+  animation: orangeMouthInnerFade 2.4s cubic-bezier(0.38, 0, 0.24, 1) infinite;
+}
+
+@keyframes orangeMouthTalkNatural {
+  0%, 100% { transform: scale(0.96, 0.16); }
+  14% { transform: scale(0.96, 0.18); }
+  26% { transform: scale(1.0, 0.75); }
+  38% { transform: scale(1.06, 1.15); }
+  50% { transform: scale(1.0, 0.55); }
+  62% { transform: scale(1.05, 1.08); }
+  74% { transform: scale(0.98, 0.45); }
+  86% { transform: scale(0.96, 0.18); }
+  92% { transform: scale(0.96, 0.16); }
+}
+
+@keyframes orangeMouthInnerFade {
+  0%, 14%, 88%, 100% { opacity: 0; }
+  24%, 76% { opacity: 1; }
+}
+
+.orange-eye-blink {
+  transform-origin: 468px 215.5px;
+  animation: orangeCyclopsBlink 4.8s infinite;
+}
+
+@keyframes orangeCyclopsBlink {
+  0%, 46%, 50%, 100% { transform: scaleY(1); }
+  48% { transform: scaleY(0.12); }
+}
+
+.orange-top-mouth-animated {
+  transform-origin: 449.5px 156px;
+  animation: orangeTopMouthTalk 2.4s ease-in-out infinite;
+}
+
+@keyframes orangeTopMouthTalk {
+  0%, 100% { transform: scale(1, 0.95); }
+  38%, 62% { transform: scale(1.08, 1.12); }
+  50% { transform: scale(1, 0.9); }
+}
+
+/* =========================================================
+   PURPLE TRIANGLE CHARACTER ANIMATIONS
+   ========================================================= */
+
+.purple-body-sway {
+  transform-origin: 567px 320px;
+  animation: purpleGroove 2.6s ease-in-out infinite;
+}
+
+@keyframes purpleGroove {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(-2deg) translateY(-2.5px); }
+  70% { transform: rotate(2deg) translateY(-2.5px); }
+}
+
+.hula-hoop-spin {
+  animation: hulaSpin 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes hulaSpin {
+  0% {
+    stroke-dashoffset: 0;
+    transform: rotate(-2.5deg);
+    transform-origin: 567px 254px;
+  }
+  100% {
+    stroke-dashoffset: 36;
+    transform: rotate(2.5deg);
+    transform-origin: 567px 254px;
+  }
+}
+
+.purple-blush {
+  animation: purpleBlushGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes purpleBlushGlow {
+  0% { opacity: 0.65; }
+  100% { opacity: 1; }
+}
+
+.star-sparkle-particle {
+  animation: starSparkleFloat 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.star-sparkle-particle.sp-1 { animation-delay: 0s; }
+.star-sparkle-particle.sp-2 { animation-delay: 0.9s; }
+.star-sparkle-particle.sp-3 { animation-delay: 1.8s; }
+
+@keyframes starSparkleFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); }
+  25% { opacity: 1; transform: translateY(-10px) scale(1.1) rotate(45deg); }
+  50% { opacity: 0.8; transform: translateY(-20px) scale(0.9) rotate(90deg); }
+  75% { opacity: 0.4; transform: translateY(-30px) scale(0.7) rotate(135deg); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0.3) rotate(180deg); }
+}
+
+.interactive-btn {
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.interactive-btn:hover {
+  opacity: 0.8;
+  transform: scale(1.12);
+}
+
+.sparkle-particle {
+  animation: sparkleFly 0.8s ease-out forwards;
+}
+
+@keyframes sparkleFly {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: translateY(-30px) scale(0.2); }
+}
+
+/* Squad Inter-Character Chatter Animation - Zero filters for 60fps */
+.blue-robot-wrapper.squad-interact-robot-typing #robot-antenna-glow {
+  animation: antennaChatterPulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes antennaChatterPulse {
+  from { opacity: 0.65; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1.1); }
+}
+
+.pink-character-group.squad-interact-pink-typing .pink-body-head {
+  animation: pinkGiggleVibe 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes pinkGiggleVibe {
+  0% { transform: translateY(0) rotate(-1.5deg); }
+  100% { transform: translateY(-4px) rotate(2deg); }
+}
+
+.teal-cube-group.squad-interact-cube-typing .teal-cube-body {
+  animation: cubeExcitedBounce 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes cubeExcitedBounce {
+  0% { transform: translateY(0) rotate(-1.5deg); }
+  100% { transform: translateY(-5px) rotate(1.5deg); }
+}
+
+.golden-star-group.squad-interact-star-typing .star-mouth-realistic {
+  animation: starMouthTalkRapid 1.3s cubic-bezier(0.38, 0, 0.24, 1) infinite;
+}
+
+@keyframes starMouthTalkRapid {
+  0%, 100% { transform: scale(0.96, 0.2); }
+  30% { transform: scale(1.06, 1.18); }
+  60% { transform: scale(1.0, 0.5); }
+  85% { transform: scale(1.05, 1.05); }
+}
+
+.orange-group.squad-interact-orange-typing .orange-head-bob {
+  animation: orangeHeadChatterBounce 1.3s ease-in-out infinite;
+}
+
+@keyframes orangeHeadChatterBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-16px) rotate(-4deg); }
+  70% { transform: translateY(2px) rotate(1deg); }
+}
+
+.purple-group.squad-interact-purple-typing .purple-body-sway {
+  animation: purpleGrooveFast 1.4s ease-in-out infinite;
+}
+
+@keyframes purpleGrooveFast {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-2.5deg) translateY(-3px); }
+}
+
+/* ==========================================================================
+   Zero-JS GPU Pupil Movement via CSS Custom Properties
+   ========================================================================== */
+.robot-pupil-group {
+  transform: translate(var(--robot-look-x, 0px), var(--robot-look-y, 0px));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.pink-pupil-group {
+  transform: translate(var(--pink-look-x, 0px), var(--pink-look-y, 0px));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.star-pupil-group {
+  transform: translate(var(--star-look-x, 0px), var(--star-look-y, 0px));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.orange-pupil-group {
+  transform: translate(var(--orange-look-x, 0px), var(--orange-look-y, 0px));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.orange-top-pupil-group {
+  transform: translate(calc(var(--orange-look-x, 0px) * 0.7), calc(var(--orange-look-y, 0px) * 0.7));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+.purple-pupil-group {
+  transform: translate(var(--purple-look-x, 0px), var(--purple-look-y, 0px));
+  transition: transform 0.08s ease-out;
+  will-change: transform;
+}
+
+/* Typing & focus overrides */
+.robot-stage.typing-mode {
+  --robot-look-x: 5.2px !important;
+  --robot-look-y: 0.5px !important;
+  --pink-look-x: -4.5px !important;
+  --pink-look-y: 0.5px !important;
+  --star-look-x: -2.0px !important;
+  --star-look-y: 2.5px !important;
+  --orange-look-x: -4.0px !important;
+  --orange-look-y: 0.2px !important;
+  --purple-look-x: -3.5px !important;
+  --purple-look-y: 0.2px !important;
+}
+
+.robot-stage.form-focused-mode {
+  --robot-look-x: 5.5px !important;
+  --robot-look-y: 1.0px !important;
+  --pink-look-x: 4.5px !important;
+  --pink-look-y: 0.5px !important;
+  --star-look-x: 3.5px !important;
+  --star-look-y: 0.4px !important;
+  --orange-look-x: 3.0px !important;
+  --orange-look-y: 0.3px !important;
+  --purple-look-x: 3.0px !important;
+  --purple-look-y: 0.3px !important;
+}
+
+/* ==========================================================================
+   Pure GPU CSS Keyframe Eye Blinking (Zero JavaScript Timers)
+   ========================================================================== */
+.robot-eye-blinker {
+  transform-origin: 92px 181px;
+  animation: robotBlinkAnim 3.8s ease-in-out infinite;
+}
+
+.pink-eye-blinker {
+  transform-origin: 236px 166px;
+  animation: pinkBlinkAnim 4.4s ease-in-out infinite;
+}
+
+.star-eye-blinker {
+  transform-origin: 388px 111px;
+  animation: starBlinkAnim 3.2s ease-in-out infinite;
+}
+
+.purple-eye-blinker {
+  transform-origin: 566px 226px;
+  animation: purpleBlinkAnim 4.0s ease-in-out infinite;
+}
+
+@keyframes robotBlinkAnim {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+
+@keyframes pinkBlinkAnim {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+
+@keyframes starBlinkAnim {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+
+@keyframes purpleBlinkAnim {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.08); }
+}
+
+/* GPU Hardware Promotion on animated characters */
+.robot-head-body,
+.pink-body-head,
+.star-sway-body,
+.teal-cube-body,
+.orange-head-bob,
+.orange-body-sway,
+.purple-body-sway {
+  will-change: transform;
+}
