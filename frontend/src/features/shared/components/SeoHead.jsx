@@ -3,57 +3,57 @@ import { useLocation } from 'react-router-dom';
 
 const SITE_URL = 'https://tradesafebrokers.com';
 const DEFAULT_IMAGE = `${SITE_URL}/image.png`;
-const SITE_NAME = 'PipWise by TradeSafe Brokers';
+const SITE_NAME = 'TradeSafeBrokers';
 
 const ROUTE_SEO_CONFIG = {
   '/': {
-    title: 'PipWise by TradeSafe Brokers — #1 Verified Forex Broker Reviews, Spreads & Comparison',
+    title: 'TradeSafeBrokers — #1 Verified Forex Broker Reviews, Spreads & Comparison',
     description:
-      'Compare top regulated Forex & CFD brokers side-by-side. Verify Tier-1 regulation (FCA, ASIC, CySEC), live raw spreads, execution speeds, swap rates, and real OTP-verified trader reviews on PipWise.',
+      'Compare top regulated Forex & CFD brokers side-by-side. Verify Tier-1 regulation (FCA, ASIC, CySEC), live raw spreads, execution speeds, swap rates, and real OTP-verified trader reviews on TradeSafeBrokers.',
     keywords:
-      'forex broker reviews, best forex brokers 2026, compare forex brokers, regulated forex brokers, raw spread forex brokers, ECN brokers comparison, FCA ASIC CySEC forex brokers, TradeSafe Brokers, PipWise',
+      'forex broker reviews, best forex brokers 2026, compare forex brokers, regulated forex brokers, raw spread forex brokers, ECN brokers comparison, FCA ASIC CySEC forex brokers, TradeSafe Brokers, TradeSafeBrokers',
     breadcrumbName: 'Home',
     pageType: 'WebPage',
   },
   '/brokers': {
-    title: 'All Verified Forex & CFD Brokers Directory (2026) | PipWise by TradeSafe Brokers',
+    title: 'All Verified Forex & CFD Brokers Directory (2026) | TradeSafeBrokers',
     description:
       'Browse our audited directory of Tier-1 regulated Forex & CFD brokers. Filter by FCA, ASIC, CySEC regulation, ECN raw spreads, minimum deposit, leverage, and verified trader trust scores.',
     keywords:
-      'forex brokers directory, all regulated forex brokers, top forex brokers list 2026, ECN forex brokers, low spread brokers, verified forex reviews, PipWise brokers',
+      'forex brokers directory, all regulated forex brokers, top forex brokers list 2026, ECN forex brokers, low spread brokers, verified forex reviews, TradeSafeBrokers brokers',
     breadcrumbName: 'All Brokers Directory',
     pageType: 'CollectionPage',
   },
   '/compare': {
-    title: 'Compare Forex Brokers Side-by-Side — Live Spreads, Fees & Regulation | PipWise',
+    title: 'Compare Forex Brokers Side-by-Side — Live Spreads, Fees & Regulation | TradeSafeBrokers',
     description:
-      'Use the PipWise side-by-side Forex broker comparison tool. Compare EUR/USD & XAU/USD spreads, commissions per lot, execution speed, regulatory safety scores, and withdrawal speeds.',
+      'Use the TradeSafeBrokers side-by-side Forex broker comparison tool. Compare EUR/USD & XAU/USD spreads, commissions per lot, execution speed, regulatory safety scores, and withdrawal speeds.',
     keywords:
       'compare forex brokers, forex broker comparison tool, side by side broker comparison, forex spread comparison, ECN vs STP broker fees, TradeSafe Brokers compare',
     breadcrumbName: 'Compare Brokers',
     pageType: 'WebApplication',
   },
   '/join-broker': {
-    title: 'List & Verify Your Brokerage on PipWise | Partner With TradeSafe Brokers',
+    title: 'List & Verify Your Brokerage on TradeSafeBrokers | Partner Desk',
     description:
-      'Submit your regulated Forex or CFD brokerage for independent compliance auditing, live spread benchmarking, and verified trader review listing on PipWise.',
+      'Submit your regulated Forex or CFD brokerage for independent compliance auditing, live spread benchmarking, and verified trader review listing on TradeSafeBrokers.',
     keywords:
-      'list forex broker, submit brokerage review, forex broker partnership, verify forex broker, PipWise partner application, TradeSafe Brokers listing',
+      'list forex broker, submit brokerage review, forex broker partnership, verify forex broker, TradeSafeBrokers partner application, TradeSafe Brokers listing',
     breadcrumbName: 'List Your Brokerage',
     pageType: 'ContactPage',
   },
   '/privacy-policy': {
-    title: 'Privacy Policy, Data Protection & Regulatory Disclosures | PipWise',
+    title: 'Privacy Policy, Data Protection & Regulatory Disclosures | TradeSafeBrokers',
     description:
-      'Read how PipWise by TradeSafe Brokers protects trader identity, OTP email verification security, cookies, and independent broker review integrity.',
+      'Read how TradeSafeBrokers protects trader identity, OTP email verification security, cookies, and independent broker review integrity.',
     keywords:
-      'PipWise privacy policy, TradeSafe Brokers terms, forex review data security, GDPR compliance',
+      'TradeSafeBrokers privacy policy, TradeSafe Brokers terms, forex review data security, GDPR compliance',
     breadcrumbName: 'Privacy Policy',
     pageType: 'WebPage',
   },
   '/admin': {
-    title: 'Admin Command Center | PipWise Management',
-    description: 'Protected administrative dashboard for PipWise broker and review moderation.',
+    title: 'Admin Command Center | TradeSafeBrokers Management',
+    description: 'Protected administrative dashboard for TradeSafeBrokers broker and review moderation.',
     keywords: '',
     breadcrumbName: 'Admin',
     noindex: true,

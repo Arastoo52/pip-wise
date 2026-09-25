@@ -194,7 +194,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               <CheckCircle2 size={16} strokeWidth={2.6} />
               <div>
                 <strong>Account Fully Verified</strong>
-                <div>You hold the official PipWise Verified Trader badge.</div>
+                <div>You hold the official TradeSafe Verified Trader badge.</div>
               </div>
             </div>
           ) : kycStatus === 'pending' ? (
@@ -397,7 +397,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               />
               <label htmlFor="kyc-consent-checkbox" className="kyc-consent-text">
                 I hereby declare that the Aadhaar details and document copies provided belong to me and are authentic.
-                I consent to PipWise using this information exclusively for identity verification.
+                I consent to TradeSafeBrokers using this information exclusively for identity verification.
               </label>
             </div>
 

@@ -86,13 +86,15 @@ const Footer = ({ onNavigate }) => {
         <div className="pw-footer-desktop">
           {/* Top Brand Bar */}
           <div className="pw-footer-brand-bar">
-            <a href="/" className="pipwise-logo-brand" aria-label="PipWise Home">
+            <a href="/" className="pipwise-logo-brand" aria-label="TradeSafeBrokers Home">
               <div className="pipwise-candles" aria-hidden="true">
                 <span className="candle-bar candle-bar-1" />
                 <span className="candle-bar candle-bar-2" />
                 <span className="candle-bar candle-bar-3" />
               </div>
-              <span className="pipwise-logo-text">PipWise</span>
+              <span className="pipwise-logo-text">
+                TradeSafe<span style={{ color: 'var(--brand-green, #fc5d21)' }}>Brokers</span>
+              </span>
             </a>
             <p className="pw-footer-tagline">
               Independent, transparent forex broker comparisons and verified ratings for traders worldwide.
@@ -260,7 +262,7 @@ const Footer = ({ onNavigate }) => {
                   <span className="pw-join-broker-title">Join as Broker</span>
                   <ArrowRight size={14} className="pw-join-arrow" />
                 </div>
-                <span className="pw-join-broker-sub">List your brokerage on PipWise</span>
+                <span className="pw-join-broker-sub">List your brokerage on TradeSafeBrokers</span>
               </Link>
 
               {/* Verified Independence Trust Badge */}
@@ -283,13 +285,15 @@ const Footer = ({ onNavigate }) => {
         <div className="pw-footer-mobile">
           {/* Top Brand Block */}
           <div className="pw-footer-mobile-brand">
-            <a href="/" className="pipwise-logo-brand" aria-label="PipWise Home">
+            <a href="/" className="pipwise-logo-brand" aria-label="TradeSafeBrokers Home">
               <div className="pipwise-candles" aria-hidden="true">
                 <span className="candle-bar candle-bar-1" />
                 <span className="candle-bar candle-bar-2" />
                 <span className="candle-bar candle-bar-3" />
               </div>
-              <span className="pipwise-logo-text">PipWise</span>
+              <span className="pipwise-logo-text">
+                TradeSafe<span style={{ color: 'var(--brand-green, #fc5d21)' }}>Brokers</span>
+              </span>
             </a>
             <p className="pw-footer-mobile-desc">
               Independent forex broker reviews and comparisons for traders.
@@ -386,7 +390,7 @@ const Footer = ({ onNavigate }) => {
 
           {/* Mobile Social Cluster */}
           <div className="pw-footer-mobile-social">
-            <span className="pw-mobile-social-label">Follow PipWise</span>
+            <span className="pw-mobile-social-label">Follow TradeSafeBrokers</span>
             <div className="pw-footer-social-cluster">
               <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X" className="pw-social-btn">
                 <svg className="pw-social-svg" viewBox="0 0 24 24" fill="currentColor">
@@ -418,14 +422,14 @@ const Footer = ({ onNavigate }) => {
         {/* Regulatory Risk Disclaimer */}
         <div className="pw-footer-disclaimer-box">
           <p className="pw-footer-disclaimer-text">
-            <strong>High-Risk Investment Notice:</strong> Trading Forex and Leveraged Financial Instruments (CFDs) carries a high level of risk and may not be suitable for all investors. Approximately 74% to 89% of retail investor accounts lose capital when trading CFDs. Never trade with funds you cannot afford to lose. PipWise is an independent financial comparison and educational publication; we do not accept funds or provide investment advisory services.
+            <strong>High-Risk Investment Notice:</strong> Trading Forex and Leveraged Financial Instruments (CFDs) carries a high level of risk and may not be suitable for all investors. Approximately 74% to 89% of retail investor accounts lose capital when trading CFDs. Never trade with funds you cannot afford to lose. TradeSafeBrokers is an independent financial comparison and educational publication; we do not accept funds or provide investment advisory services.
           </p>
         </div>
 
         {/* Bottom Legal Copyright Bar */}
         <div className="pw-footer-bottom-bar">
           <p className="pw-footer-copyright">
-            © 2024-2026 PipWise™ Inc. All rights reserved. All broker trademarks and logos belong to their respective registered entities.
+            © 2024-2026 TradeSafeBrokers™ Inc. All rights reserved. All broker trademarks and logos belong to their respective registered entities.
           </p>
           <div className="pw-footer-made-with">
             <span>Made with</span>

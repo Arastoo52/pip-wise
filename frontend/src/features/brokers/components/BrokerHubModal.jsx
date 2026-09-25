@@ -251,7 +251,7 @@ export const BrokerHubModal = ({ isOpen, onClose, broker, onBrokerUpdated }) => 
                     <ShieldCheck size={18} />
                   </div>
                   <div className="bhm-stat-val">{broker.trustScore || 95} / 100</div>
-                  <div className="bhm-stat-lbl">PipWise Trust Score</div>
+                  <div className="bhm-stat-lbl">TradeSafe Trust Score</div>
                   <div className="bhm-stat-trend">Tier-1 Regulatory Standing</div>
                 </div>
 

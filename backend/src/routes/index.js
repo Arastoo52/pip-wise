@@ -26,7 +26,7 @@ router.get('/health', (req, res) => {
           heapTotalMB: Math.round(memoryUsage.heapTotal / 1024 / 1024),
         },
       },
-      'PipWise API is healthy and operational'
+      'TradeSafe Brokers API is healthy and operational'
     )
   );
 });

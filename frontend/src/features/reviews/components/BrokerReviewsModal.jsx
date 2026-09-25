@@ -269,7 +269,7 @@ export const BrokerReviewsModal = ({ isOpen, onClose, broker, onReviewSubmitted 
                 <div className="brm-name-row">
                   <h3 className="brm-title">{broker.name} Reviews & Ratings</h3>
                   {(broker.isVerified || broker.isVerifiedPartner) && (
-                    <span className="brm-verified-badge" title="PipWise Verified Genuine Broker">
+                    <span className="brm-verified-badge" title="TradeSafe Verified Genuine Broker">
                       <CheckCircle2 size={11} strokeWidth={2.8} /> Verified Broker
                     </span>
                   )}
@@ -708,7 +708,7 @@ export const BrokerReviewsModal = ({ isOpen, onClose, broker, onReviewSubmitted 
                             {rev.verifiedTrader && (
                               <span
                                 className="brm-rc-verified-chip"
-                                title="Verified Aadhaar Trader on PipWise"
+                                title="Verified Aadhaar Trader on TradeSafeBrokers"
                               >
                                 <CheckCircle2 size={10} strokeWidth={2.8} /> Verified Trader
                               </span>

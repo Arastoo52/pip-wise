@@ -292,14 +292,16 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
           <Link
             to="/"
             className="pipwise-logo-brand"
-            aria-label="PipWise Home"
+            aria-label="TradeSafeBrokers Home"
           >
             <div className="pipwise-candles" aria-hidden="true">
               <span className="candle-bar candle-bar-1" />
               <span className="candle-bar candle-bar-2" />
               <span className="candle-bar candle-bar-3" />
             </div>
-            <span className="pipwise-logo-text">PipWise</span>
+            <span className="pipwise-logo-text">
+              TradeSafe<span style={{ color: 'var(--brand-green, #fc5d21)' }}>Brokers</span>
+            </span>
           </Link>
         </motion.div>
 
@@ -667,7 +669,7 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
                     }}
                   >
                     <LogIn size={15} />
-                    <span>Log In to PipWise</span>
+                    <span>Log In to TradeSafeBrokers</span>
                   </button>
                   <button
                     type="button"
