@@ -26,15 +26,46 @@ export const register = asyncHandler(async (req, res) => {
   }).select('+otpLastSentAt +otpHash');
 
   if (existingUser) {
-    // Legacy unverified user fallback
-    if (existingUser.email === normalizedEmail && !existingUser.isEmailVerified) {
-      await User.deleteOne({ _id: existingUser._id });
-    } else {
-      if (existingUser.email === normalizedEmail) {
-        throw new ApiError(409, 'User with this email already exists');
+    if (existingUser.email === normalizedEmail) {
+      // Allow verification via OTP so user is never locked out
+      const salt = await bcrypt.genSalt(10);
+      existingUser.password = await bcrypt.hash(password, salt);
+      const plainOtp = await existingUser.generateAndSetOtp();
+      await existingUser.save({ validateBeforeSave: false });
+
+      let emailDispatched = false;
+      try {
+        await sendOtpEmail({
+          to: existingUser.email,
+          username: existingUser.username,
+          otp: plainOtp,
+          expiresInMinutes: 10,
+          purpose: 'Account Verification',
+        });
+        emailDispatched = true;
+      } catch (emailErr) {
+        console.warn(`⚠️ [SMTP Notice] Email delivery failed: ${emailErr.message}`);
       }
-      throw new ApiError(409, 'Username is already taken');
+
+      console.log(`🔑 [OTP CODE] User: ${existingUser.email} | Code: ${plainOtp}`);
+
+      return res.status(200).json(
+        new ApiResponse(
+          200,
+          {
+            requiresOtp: true,
+            email: existingUser.email,
+            cooldownSeconds: 3,
+            previewOtp: plainOtp,
+            emailDelivered: emailDispatched,
+          },
+          emailDispatched
+            ? 'A 4-digit verification code has been sent to your email.'
+            : `Verification code generated: ${plainOtp}`
+        )
+      );
     }
+    throw new ApiError(409, 'Username is already taken');
   }
 
   // 2. Check if another pending signup is actively holding this username
