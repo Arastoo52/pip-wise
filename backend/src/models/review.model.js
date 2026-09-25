@@ -73,6 +73,75 @@ const reviewSchema = new mongoose.Schema(
       type: String,
       default: 'UPI / IMPS',
     },
+    categories: {
+      executionSpeed: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 5,
+      },
+      customerSupport: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 5,
+      },
+      withdrawalSpeed: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 5,
+      },
+      spreadsFees: {
+        type: Number,
+        min: 1,
+        max: 5,
+        default: 5,
+      },
+    },
+    recommend: {
+      type: Boolean,
+      default: true,
+    },
+    helpfulVotes: {
+      type: Number,
+      default: 0,
+    },
+    helpfulVoters: [
+      {
+        type: String,
+      },
+    ],
+    reviewerRole: {
+      type: String,
+      enum: ['trader', 'broker', 'admin'],
+      default: 'trader',
+    },
+    brokerResponse: {
+      responseComment: {
+        type: String,
+        trim: true,
+        default: null,
+      },
+      responderName: {
+        type: String,
+        trim: true,
+        default: null,
+      },
+      respondedAt: {
+        type: Date,
+        default: null,
+      },
+      isOfficial: {
+        type: Boolean,
+        default: false,
+      },
+      brokerUser: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
+      },
+    },
   },
   {
     timestamps: true,

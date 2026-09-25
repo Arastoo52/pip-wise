@@ -2574,14 +2574,32 @@ export default function AdminDashboard() {
                                 {rev.status.toUpperCase()}
                               </span>
                             </span>
-                            <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#334155', margin: '3px 0 2px' }}>
+                            <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'inherit', margin: '3px 0 2px' }}>
                               "{rev.title}"
                             </span>
                             <span style={{ fontSize: '11px', color: '#64748b', lineHeight: 1.4 }}>
                               {rev.comment}
                             </span>
+                            {rev.categories && (
+                              <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '10px', background: 'rgba(252,93,33,0.1)', color: '#fc5d21', padding: '1px 5px', borderRadius: '4px' }}>
+                                  ⚡ Exec: {rev.categories.executionSpeed || 5}★
+                                </span>
+                                <span style={{ fontSize: '10px', background: 'rgba(16,185,129,0.1)', color: '#10b981', padding: '1px 5px', borderRadius: '4px' }}>
+                                  💸 Payout: {rev.categories.withdrawalSpeed || 5}★
+                                </span>
+                                <span style={{ fontSize: '10px', background: 'rgba(59,130,246,0.1)', color: '#3b82f6', padding: '1px 5px', borderRadius: '4px' }}>
+                                  💬 Support: {rev.categories.customerSupport || 5}★
+                                </span>
+                              </div>
+                            )}
+                            {rev.brokerResponse?.responseComment && (
+                              <div style={{ marginTop: '6px', padding: '6px 8px', background: 'rgba(252,93,33,0.06)', borderLeft: '2px solid #fc5d21', borderRadius: '4px', fontSize: '10.5px' }}>
+                                <strong style={{ color: '#fc5d21' }}>🏢 Broker Reply ({rev.brokerResponse.responderName}):</strong> {rev.brokerResponse.responseComment}
+                              </div>
+                            )}
                             <span className="d2-item-sub" style={{ marginTop: '4px' }}>
-                              By {rev.username} ({rev.userEmail || 'trader'}) • Deposit Method: {rev.depositMethodUsed}
+                              By {rev.username} ({rev.userEmail || 'trader'}) • Deposit: {rev.depositMethodUsed} {rev.verifiedTrader && '• Verified Trader ✓'}
                             </span>
                           </div>
                         </div>

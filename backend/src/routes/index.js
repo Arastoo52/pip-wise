@@ -3,6 +3,7 @@ import authRoutes from './auth.routes.js';
 import brokerRoutes from './broker.routes.js';
 import adminRoutes from './admin.routes.js';
 import testimonialRoutes from './testimonial.routes.js';
+import reviewRoutes from './review.routes.js';
 import mongoose from 'mongoose';
 import { ApiResponse } from '../utils/ApiResponse.js';
 
@@ -35,5 +36,6 @@ router.use('/auth', authRoutes);
 router.use('/brokers', brokerRoutes);
 router.use('/admin', adminRoutes);
 router.use('/testimonials', testimonialRoutes);
+router.use('/reviews', reviewRoutes);
 
 export default router;

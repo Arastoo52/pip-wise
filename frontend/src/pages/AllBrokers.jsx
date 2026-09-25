@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useBrokers } from '../features/brokers/hooks/useBrokers.js';
 import { BrokerLogo } from '../features/brokers/components/BrokerLogo.jsx';
+import BrokerReviewsModal from '../features/reviews/components/BrokerReviewsModal.jsx';
 import Footer from '../features/shared/components/Footer.jsx';
 import './AllBrokers.css';
 
@@ -40,6 +41,7 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
   const [sortBy, setSortBy] = useState('rank');
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [selectedBrokerForModal, setSelectedBrokerForModal] = useState(null);
+  const [selectedBrokerForReviews, setSelectedBrokerForReviews] = useState(null);
   const [compareList, setCompareList] = useState([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
@@ -385,11 +387,26 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                     </label>
                   </div>
 
-                  {/* Rating Row */}
-                  <div className="card-rating-row">
+                  {/* Rating Row - Clickable to open reviews */}
+                  <div
+                    className="card-rating-row"
+                    onClick={() => setSelectedBrokerForReviews(broker)}
+                    title={`View verified reviews & execution benchmarks for ${broker.name}`}
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
                     <span className="card-star-icon">★</span>
                     <span className="card-rating-num">{broker.rating}</span>
                     <span className="card-reviews-count">({broker.reviewsCount})</span>
+                    <span
+                      style={{
+                        marginLeft: 'auto',
+                        fontSize: '10.5px',
+                        color: '#fc5d21',
+                        fontWeight: 700,
+                      }}
+                    >
+                      Reviews →
+                    </span>
                   </div>
 
                   {/* Highlight Badge Pill & Verified Badge */}
@@ -462,6 +479,20 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                     <button
                       type="button"
                       className="card-specs-cta"
+                      onClick={() => setSelectedBrokerForReviews(broker)}
+                      aria-label={`Read trader reviews for ${broker.name}`}
+                      style={{
+                        background: 'rgba(252, 93, 33, 0.1)',
+                        color: '#fc5d21',
+                        borderColor: 'rgba(252, 93, 33, 0.3)',
+                      }}
+                    >
+                      <span>Reviews</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="card-specs-cta"
                       onClick={() => setSelectedBrokerForModal(broker)}
                       aria-label={`View specs for ${broker.name}`}
                     >
@@ -526,9 +557,14 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <span style={{ color: '#f59e0b' }}>★</span>
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                        onClick={() => setSelectedBrokerForReviews(broker)}
+                        title={`View community reviews for ${broker.name}`}
+                      >
+                        <span style={{ color: '#fc5d21' }}>★</span>
                         <strong>{broker.rating}</strong>
+                        <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>Reviews</span>
                       </div>
                     </td>
                     <td><strong style={{ color: 'var(--brand-green)' }}>{broker.minDeposit}</strong></td>
@@ -547,6 +583,20 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                         >
                           Visit
                         </a>
+                        <button
+                          type="button"
+                          className="card-specs-cta"
+                          style={{
+                            padding: '4px 8px',
+                            height: '32px',
+                            fontSize: '0.76rem',
+                            color: '#fc5d21',
+                            borderColor: 'rgba(252, 93, 33, 0.3)',
+                          }}
+                          onClick={() => setSelectedBrokerForReviews(broker)}
+                        >
+                          Reviews
+                        </button>
                         <button
                           type="button"
                           className="card-specs-cta"
@@ -764,16 +814,46 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                 </div>
               </div>
 
-              {/* Modal CTA */}
-              <a
-                href={selectedBrokerForModal.affiliateUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="modal-open-account-btn"
-              >
-                <span>Open Account with {selectedBrokerForModal.name}</span>
-                <ExternalLink size={15} />
-              </a>
+              {/* Modal CTAs with Reviews trigger */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const b = selectedBrokerForModal;
+                    setSelectedBrokerForModal(null);
+                    setSelectedBrokerForReviews(b);
+                  }}
+                  className="modal-specs-cta"
+                  style={{
+                    flex: 1,
+                    background: 'rgba(252, 93, 33, 0.12)',
+                    border: '1px solid rgba(252, 93, 33, 0.35)',
+                    color: '#fc5d21',
+                    borderRadius: '10px',
+                    padding: '10px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>★ Community Reviews & Responses</span>
+                </button>
+
+                <a
+                  href={selectedBrokerForModal.affiliateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="modal-open-account-btn"
+                  style={{ flex: 1, marginTop: 0 }}
+                >
+                  <span>Open Account</span>
+                  <ExternalLink size={15} />
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -887,6 +967,13 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Real Forex App: Broker Reviews & Official Responses Modal */}
+      <BrokerReviewsModal
+        isOpen={Boolean(selectedBrokerForReviews)}
+        broker={selectedBrokerForReviews}
+        onClose={() => setSelectedBrokerForReviews(null)}
+      />
 
       {/* Global Footer */}
       <Footer />

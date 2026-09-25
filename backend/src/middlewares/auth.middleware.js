@@ -59,3 +59,32 @@ export const requireAdmin = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+/**
+ * Optional JWT Authentication Middleware
+ * Populates req.user if a valid token is present, but doesn't reject if unauthenticated
+ */
+export const optionalVerifyJWT = asyncHandler(async (req, res, next) => {
+  try {
+    const token =
+      req.cookies?.accessToken ||
+      req.header('Authorization')?.replace('Bearer ', '').trim();
+
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
+    const decodedToken = jwt.verify(token, config.jwtSecret);
+    const user = await User.findById(decodedToken?._id).select('-password');
+    if (user && user.isActive) {
+      req.user = user;
+    } else {
+      req.user = null;
+    }
+    next();
+  } catch {
+    req.user = null;
+    next();
+  }
+});
