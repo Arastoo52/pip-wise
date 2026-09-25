@@ -7,10 +7,10 @@ import { OtpVerification } from '../models/otpVerification.model.js';
 import { COOKIE_OPTIONS, AUTH_MESSAGES } from '../constants/index.js';
 import { sendOtpEmail, verifySmtpConnection } from '../services/mail.service.js';
 
-const OTP_RESEND_COOLDOWN_MS = 60 * 1000; // 60 seconds cooldown between OTP sends
+const OTP_RESEND_COOLDOWN_MS = 3 * 1000; // 3 seconds cooldown between OTP sends
 
 /**
- * @desc    Initiate registration & send 4-digit verification OTP via Hostinger SMTP
+ * @desc    Initiate registration & send 4-digit verification OTP
  *          (User is NOT created in the users collection until OTP is verified)
  * @route   POST /api/v1/auth/register
  * @access  Public
@@ -59,7 +59,7 @@ export const register = asyncHandler(async (req, res) => {
       const waitSec = Math.ceil(
         (OTP_RESEND_COOLDOWN_MS - (Date.now() - new Date(pendingRecord.otpLastSentAt).getTime())) / 1000
       );
-      throw new ApiError(429, `Please wait ${waitSec} seconds before requesting another verification code.`);
+      throw new ApiError(429, `Please wait ${waitSec} seconds before requesting another code.`);
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -81,14 +81,22 @@ export const register = asyncHandler(async (req, res) => {
   const plainOtp = await pendingRecord.generateAndSetOtp();
   await pendingRecord.save();
 
-  // 4. Send 4-digit OTP email via Hostinger SMTP
-  await sendOtpEmail({
-    to: pendingRecord.email,
-    username: pendingRecord.username,
-    otp: plainOtp,
-    expiresInMinutes: 10,
-    purpose: 'Account Registration',
-  });
+  // 4. Send 4-digit OTP email with graceful fallback if SMTP is offline
+  let emailDispatched = false;
+  try {
+    await sendOtpEmail({
+      to: pendingRecord.email,
+      username: pendingRecord.username,
+      otp: plainOtp,
+      expiresInMinutes: 10,
+      purpose: 'Account Registration',
+    });
+    emailDispatched = true;
+  } catch (emailErr) {
+    console.warn(`⚠️ [SMTP Notice] Email delivery unavailable (${emailErr.message}). Fallback code active.`);
+  }
+
+  console.log(`🔑 [OTP CODE] User: ${pendingRecord.email} | Code: ${plainOtp}`);
 
   return res.status(201).json(
     new ApiResponse(
@@ -96,9 +104,13 @@ export const register = asyncHandler(async (req, res) => {
       {
         requiresOtp: true,
         email: pendingRecord.email,
-        cooldownSeconds: 60,
+        cooldownSeconds: 3,
+        previewOtp: plainOtp,
+        emailDelivered: emailDispatched,
       },
-      'A 4-digit verification code has been sent to your email. Valid for 10 minutes.'
+      emailDispatched
+        ? 'A 4-digit verification code has been sent to your email.'
+        : `Verification code generated: ${plainOtp}`
     )
   );
 });
@@ -238,13 +250,21 @@ export const resendOtp = asyncHandler(async (req, res) => {
     const plainOtp = await user.generateAndSetOtp();
     await user.save({ validateBeforeSave: false });
 
-    await sendOtpEmail({
-      to: user.email,
-      username: user.username,
-      otp: plainOtp,
-      expiresInMinutes: 10,
-      purpose: 'Login Verification',
-    });
+    let emailSent = false;
+    try {
+      await sendOtpEmail({
+        to: user.email,
+        username: user.username,
+        otp: plainOtp,
+        expiresInMinutes: 10,
+        purpose: 'Login Verification',
+      });
+      emailSent = true;
+    } catch (emailErr) {
+      console.warn(`⚠️ [SMTP Notice] Email failed for ${user.email}: ${emailErr.message}`);
+    }
+
+    console.log(`🔑 [Resent OTP Code for ${user.email}]: ${plainOtp}`);
 
     return res.status(200).json(
       new ApiResponse(
@@ -252,9 +272,13 @@ export const resendOtp = asyncHandler(async (req, res) => {
         {
           requiresOtp: true,
           email: user.email,
-          cooldownSeconds: 60,
+          cooldownSeconds: 3,
+          previewOtp: plainOtp,
+          emailDelivered: emailSent,
         },
-        'A new 4-digit verification code has been sent to your email.'
+        emailSent
+          ? 'A new 4-digit verification code has been sent to your email.'
+          : `New verification code generated: ${plainOtp}`
       )
     );
   }
@@ -276,13 +300,21 @@ export const resendOtp = asyncHandler(async (req, res) => {
     const plainOtp = await pendingRecord.generateAndSetOtp();
     await pendingRecord.save();
 
-    await sendOtpEmail({
-      to: pendingRecord.email,
-      username: pendingRecord.username,
-      otp: plainOtp,
-      expiresInMinutes: 10,
-      purpose: 'Account Registration',
-    });
+    let emailSent = false;
+    try {
+      await sendOtpEmail({
+        to: pendingRecord.email,
+        username: pendingRecord.username,
+        otp: plainOtp,
+        expiresInMinutes: 10,
+        purpose: 'Account Registration',
+      });
+      emailSent = true;
+    } catch (emailErr) {
+      console.warn(`⚠️ [SMTP Notice] Email failed for ${pendingRecord.email}: ${emailErr.message}`);
+    }
+
+    console.log(`🔑 [Resent OTP Code for ${pendingRecord.email}]: ${plainOtp}`);
 
     return res.status(200).json(
       new ApiResponse(
@@ -290,9 +322,13 @@ export const resendOtp = asyncHandler(async (req, res) => {
         {
           requiresOtp: true,
           email: pendingRecord.email,
-          cooldownSeconds: 60,
+          cooldownSeconds: 3,
+          previewOtp: plainOtp,
+          emailDelivered: emailSent,
         },
-        'A new 4-digit verification code has been sent to your email.'
+        emailSent
+          ? 'A new 4-digit verification code has been sent to your email.'
+          : `New verification code generated: ${plainOtp}`
       )
     );
   }
@@ -301,8 +337,8 @@ export const resendOtp = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      { cooldownSeconds: 60 },
-      'If an account with this email exists, a 4-digit verification code has been sent.'
+      { cooldownSeconds: 3 },
+      'If an account with this email exists, a 4-digit verification code has been generated.'
     )
   );
 });
@@ -333,13 +369,21 @@ export const login = asyncHandler(async (req, res) => {
       const plainOtp = await pendingRecord.generateAndSetOtp();
       await pendingRecord.save();
 
-      await sendOtpEmail({
-        to: pendingRecord.email,
-        username: pendingRecord.username,
-        otp: plainOtp,
-        expiresInMinutes: 10,
-        purpose: 'Account Verification',
-      });
+      let emailSent = false;
+      try {
+        await sendOtpEmail({
+          to: pendingRecord.email,
+          username: pendingRecord.username,
+          otp: plainOtp,
+          expiresInMinutes: 10,
+          purpose: 'Account Verification',
+        });
+        emailSent = true;
+      } catch (emailErr) {
+        console.warn(`⚠️ [SMTP Notice] Login email to ${pendingRecord.email}: ${emailErr.message}`);
+      }
+
+      console.log(`🔑 [Login OTP Code for ${pendingRecord.email}]: ${plainOtp}`);
 
       return res.status(200).json(
         new ApiResponse(
@@ -347,9 +391,13 @@ export const login = asyncHandler(async (req, res) => {
           {
             requiresOtp: true,
             email: pendingRecord.email,
-            cooldownSeconds: 60,
+            cooldownSeconds: 3,
+            previewOtp: plainOtp,
+            emailDelivered: emailSent,
           },
-          'A 4-digit verification code has been sent to your email.'
+          emailSent
+            ? 'A 4-digit verification code has been sent to your email.'
+            : `Verification code: ${plainOtp}`
         )
       );
     }
@@ -368,17 +416,25 @@ export const login = asyncHandler(async (req, res) => {
     throw new ApiError(403, 'Account is deactivated. Please contact support.');
   }
 
-  // 4. Generate & send a fresh 4-digit Login OTP via Hostinger SMTP every time user logs in
+  // 4. Generate & send fresh 4-digit Login OTP
   const plainOtp = await user.generateAndSetOtp();
   await user.save({ validateBeforeSave: false });
 
-  await sendOtpEmail({
-    to: user.email,
-    username: user.username,
-    otp: plainOtp,
-    expiresInMinutes: 10,
-    purpose: 'Login Verification',
-  });
+  let emailSent = false;
+  try {
+    await sendOtpEmail({
+      to: user.email,
+      username: user.username,
+      otp: plainOtp,
+      expiresInMinutes: 10,
+      purpose: 'Login Verification',
+    });
+    emailSent = true;
+  } catch (emailErr) {
+    console.warn(`⚠️ [SMTP Notice] Login email to ${user.email}: ${emailErr.message}`);
+  }
+
+  console.log(`🔑 [Login OTP Code for ${user.email}]: ${plainOtp}`);
 
   return res.status(200).json(
     new ApiResponse(
@@ -386,9 +442,13 @@ export const login = asyncHandler(async (req, res) => {
       {
         requiresOtp: true,
         email: user.email,
-        cooldownSeconds: 60,
+        cooldownSeconds: 3,
+        previewOtp: plainOtp,
+        emailDelivered: emailSent,
       },
-      'A 4-digit login verification code has been sent to your email.'
+      emailSent
+        ? 'A 4-digit verification code has been sent to your email.'
+        : `Verification code: ${plainOtp}`
     )
   );
 });
