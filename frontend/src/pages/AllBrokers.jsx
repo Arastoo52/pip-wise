@@ -14,10 +14,16 @@ import {
   Info,
   Plus,
   CheckCircle2,
+  Building2,
+  Sparkles,
+  Tag,
+  MessageCircleQuestion,
 } from 'lucide-react';
 import { useBrokers } from '../features/brokers/hooks/useBrokers.js';
 import { BrokerLogo } from '../features/brokers/components/BrokerLogo.jsx';
+import { brokerService } from '../features/brokers/services/broker.service.js';
 import BrokerReviewsModal from '../features/reviews/components/BrokerReviewsModal.jsx';
+import BrokerHubModal from '../features/brokers/components/BrokerHubModal.jsx';
 import Footer from '../features/shared/components/Footer.jsx';
 import './AllBrokers.css';
 
@@ -42,6 +48,7 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
   const [selectedBrokerForModal, setSelectedBrokerForModal] = useState(null);
   const [selectedBrokerForReviews, setSelectedBrokerForReviews] = useState(null);
+  const [selectedBrokerForHub, setSelectedBrokerForHub] = useState(null);
   const [compareList, setCompareList] = useState([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
 
@@ -438,6 +445,49 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                     )}
                   </div>
 
+                  {/* Broker Promo Offer Banner if available */}
+                  {broker.promotionalOffer?.headline && (
+                    <div
+                      style={{
+                        margin: '7px 0 10px 0',
+                        padding: '5px 9px',
+                        background: 'rgba(252, 93, 33, 0.07)',
+                        border: '1px dashed rgba(252, 93, 33, 0.3)',
+                        borderRadius: '8px',
+                        fontSize: '11px',
+                        color: '#fc5d21',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontWeight: 600,
+                      }}
+                      title="Exclusive Trader Deposit Offer"
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', overflow: 'hidden' }}>
+                        <Sparkles size={11} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {broker.promotionalOffer.headline}
+                        </span>
+                      </div>
+                      {broker.promotionalOffer.code && (
+                        <span
+                          style={{
+                            background: '#fc5d21',
+                            color: '#fff',
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            padding: '1px 5px',
+                            borderRadius: '4px',
+                            flexShrink: 0,
+                            marginLeft: '6px',
+                          }}
+                        >
+                          {broker.promotionalOffer.code}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {/* Clean Minimal Specs List */}
                   <div className="card-specs-list">
                     <div className="spec-clean-row">
@@ -470,6 +520,7 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="card-primary-cta"
+                      onClick={() => brokerService.recordClick(broker._id)}
                       aria-label={`Open account with ${broker.name}`}
                     >
                       <span>Open Account</span>
@@ -488,6 +539,22 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                       }}
                     >
                       <span>Reviews</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="card-specs-cta"
+                      onClick={() => setSelectedBrokerForHub(broker)}
+                      title={`Broker Partner Desk & Q&A for ${broker.name}`}
+                      style={{
+                        background: 'rgba(59, 130, 246, 0.08)',
+                        color: '#60a5fa',
+                        borderColor: 'rgba(59, 130, 246, 0.3)',
+                        padding: '0 8px',
+                        fontSize: '0.74rem',
+                      }}
+                    >
+                      <span>Desk</span>
                     </button>
 
                     <button
@@ -573,12 +640,13 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                     <td><span className="upi-accept-pill">UPI, NetBanking</span></td>
                     <td>{broker.regulation}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: '6px' }}>
+                      <div style={{ display: 'flex', gap: '5px' }}>
                         <a
                           href={broker.affiliateUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="card-primary-cta"
+                          onClick={() => brokerService.recordClick(broker._id)}
                           style={{ padding: '4px 10px', height: '32px', fontSize: '0.78rem' }}
                         >
                           Visit
@@ -596,6 +664,20 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                           onClick={() => setSelectedBrokerForReviews(broker)}
                         >
                           Reviews
+                        </button>
+                        <button
+                          type="button"
+                          className="card-specs-cta"
+                          style={{
+                            padding: '4px 8px',
+                            height: '32px',
+                            fontSize: '0.74rem',
+                            color: '#60a5fa',
+                            borderColor: 'rgba(59, 130, 246, 0.3)',
+                          }}
+                          onClick={() => setSelectedBrokerForHub(broker)}
+                        >
+                          Desk
                         </button>
                         <button
                           type="button"
@@ -814,8 +896,8 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                 </div>
               </div>
 
-              {/* Modal CTAs with Reviews trigger */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+              {/* Modal CTAs with Reviews & Broker Hub Desk triggers */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '16px' }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -825,35 +907,63 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                   }}
                   className="modal-specs-cta"
                   style={{
-                    flex: 1,
                     background: 'rgba(252, 93, 33, 0.12)',
                     border: '1px solid rgba(252, 93, 33, 0.35)',
                     color: '#fc5d21',
                     borderRadius: '10px',
-                    padding: '10px',
-                    fontSize: '12px',
+                    padding: '9px',
+                    fontSize: '11.5px',
                     fontWeight: 700,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '6px',
+                    gap: '5px',
                   }}
                 >
-                  <span>★ Community Reviews & Responses</span>
+                  <Star size={13} fill="#fc5d21" />
+                  <span>Trader Reviews</span>
                 </button>
 
-                <a
-                  href={selectedBrokerForModal.affiliateUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="modal-open-account-btn"
-                  style={{ flex: 1, marginTop: 0 }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const b = selectedBrokerForModal;
+                    setSelectedBrokerForModal(null);
+                    setSelectedBrokerForHub(b);
+                  }}
+                  className="modal-specs-cta"
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.12)',
+                    border: '1px solid rgba(59, 130, 246, 0.35)',
+                    color: '#60a5fa',
+                    borderRadius: '10px',
+                    padding: '9px',
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '5px',
+                  }}
                 >
-                  <span>Open Account</span>
-                  <ExternalLink size={15} />
-                </a>
+                  <Building2 size={13} />
+                  <span>Broker Desk & Q&A</span>
+                </button>
               </div>
+
+              <a
+                href={selectedBrokerForModal.affiliateUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="modal-open-account-btn"
+                onClick={() => brokerService.recordClick(selectedBrokerForModal._id)}
+                style={{ width: '100%', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <span>Open Real Account with {selectedBrokerForModal.name}</span>
+                <ExternalLink size={15} />
+              </a>
             </div>
           </div>
         )}
@@ -973,6 +1083,13 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
         isOpen={Boolean(selectedBrokerForReviews)}
         broker={selectedBrokerForReviews}
         onClose={() => setSelectedBrokerForReviews(null)}
+      />
+
+      {/* Real Forex App: Broker Partner Hub, Traffic Analytics & Q&A Desk */}
+      <BrokerHubModal
+        isOpen={Boolean(selectedBrokerForHub)}
+        broker={selectedBrokerForHub}
+        onClose={() => setSelectedBrokerForHub(null)}
       />
 
       {/* Global Footer */}

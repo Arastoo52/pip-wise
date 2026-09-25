@@ -265,3 +265,126 @@ export const deleteBroker = asyncHandler(async (req, res) => {
     new ApiResponse(200, null, 'Broker removed successfully')
   );
 });
+
+/**
+ * @desc    Track click lead for broker (Open Account / Visit)
+ * @route   POST /api/v1/brokers/:id/click
+ * @access  Public
+ */
+export const recordBrokerClick = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const broker = await Broker.findByIdAndUpdate(
+    id,
+    { $inc: { clicksCount: 1 } },
+    { new: true }
+  );
+
+  if (!broker) {
+    throw new ApiError(404, 'Broker not found');
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, { clicksCount: broker.clicksCount }, 'Click recorded')
+  );
+});
+
+/**
+ * @desc    Update broker promotional announcement / deposit bonus offer
+ * @route   PATCH /api/v1/brokers/:id/promotion
+ * @access  Public / Broker Partner
+ */
+export const updatePromotionalOffer = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { headline, code, expiresAt, active } = req.body;
+
+  const broker = await Broker.findById(id);
+  if (!broker) {
+    throw new ApiError(404, 'Broker not found');
+  }
+
+  broker.promotionalOffer = {
+    headline: headline?.trim() || broker.promotionalOffer?.headline || 'Exclusive Deposit Bonus',
+    code: code?.trim()?.toUpperCase() || broker.promotionalOffer?.code || 'PIPTRADE100',
+    expiresAt: expiresAt?.trim() || broker.promotionalOffer?.expiresAt || 'Active this month',
+    active: active !== undefined ? Boolean(active) : true,
+  };
+
+  await broker.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, { promotionalOffer: broker.promotionalOffer }, 'Promotional offer updated successfully')
+  );
+});
+
+/**
+ * @desc    Submit a direct trader inquiry / question to broker
+ * @route   POST /api/v1/brokers/:id/inquiry
+ * @access  Public
+ */
+export const submitTraderInquiry = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { question, traderName, traderEmail } = req.body;
+
+  if (!question || question.trim().length < 8) {
+    throw new ApiError(400, 'Please write a specific question (at least 8 characters).');
+  }
+
+  const broker = await Broker.findById(id);
+  if (!broker) {
+    throw new ApiError(404, 'Broker not found');
+  }
+
+  const name = req.user?.username || traderName?.trim() || 'Verified Trader';
+  const email = req.user?.email || traderEmail?.trim() || '';
+
+  const newInquiry = {
+    traderName: name,
+    traderEmail: email,
+    question: question.trim(),
+    status: 'open',
+    createdAt: new Date(),
+  };
+
+  if (!broker.inquiries) broker.inquiries = [];
+  broker.inquiries.unshift(newInquiry);
+  await broker.save();
+
+  return res.status(201).json(
+    new ApiResponse(201, { inquiries: broker.inquiries }, 'Inquiry submitted! The broker desk will answer shortly.')
+  );
+});
+
+/**
+ * @desc    Reply to a trader inquiry (Official Broker Desk Answer)
+ * @route   POST /api/v1/brokers/:id/inquiry/:inquiryId/reply
+ * @access  Public / Broker Representative
+ */
+export const replyTraderInquiry = asyncHandler(async (req, res) => {
+  const { id, inquiryId } = req.params;
+  const { answer, answeredBy } = req.body;
+
+  if (!answer || answer.trim().length < 4) {
+    throw new ApiError(400, 'Please provide a clear answer.');
+  }
+
+  const broker = await Broker.findById(id);
+  if (!broker) {
+    throw new ApiError(404, 'Broker not found');
+  }
+
+  const inquiry = broker.inquiries?.id(inquiryId) || broker.inquiries?.find((iq) => iq._id.toString() === inquiryId);
+  if (!inquiry) {
+    throw new ApiError(404, 'Inquiry question not found');
+  }
+
+  inquiry.answer = answer.trim();
+  inquiry.answeredBy = answeredBy?.trim() || (req.user?.username ? `${req.user.username} (${broker.name} Desk)` : `${broker.name} Support`);
+  inquiry.answeredAt = new Date();
+  inquiry.status = 'answered';
+
+  await broker.save();
+
+  return res.status(200).json(
+    new ApiResponse(200, { inquiries: broker.inquiries }, 'Inquiry answered successfully!')
+  );
+});

@@ -206,6 +206,49 @@ const brokerSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    profileViews: {
+      type: Number,
+      default: 12450,
+    },
+    clicksCount: {
+      type: Number,
+      default: 1820,
+    },
+    promotionalOffer: {
+      headline: {
+        type: String,
+        default: 'Zero Swap Fees & Instant UPI Deposit Bonus',
+      },
+      code: {
+        type: String,
+        default: 'PIPTRADE100',
+      },
+      expiresAt: {
+        type: String,
+        default: 'Active this month',
+      },
+      active: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    claimedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    inquiries: [
+      {
+        traderName: { type: String, required: true },
+        traderEmail: { type: String, default: '' },
+        question: { type: String, required: true },
+        answer: { type: String, default: null },
+        answeredAt: { type: Date, default: null },
+        answeredBy: { type: String, default: null },
+        createdAt: { type: Date, default: Date.now },
+        status: { type: String, enum: ['open', 'answered'], default: 'open' },
+      },
+    ],
   },
   {
     timestamps: true,
