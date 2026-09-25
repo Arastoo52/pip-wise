@@ -4,13 +4,20 @@ import axios from 'axios';
  * Base API Client configured for PipWise backend
  * withCredentials: true ensures HTTP-Only cookies are sent and received
  */
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return 'http://localhost:5001/api/v1';
+  const clean = envUrl.trim().replace(/\/+$/, '');
+  return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
+};
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1',
+  baseURL: getBaseUrl(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000,
+  timeout: 15000,
 });
 
 // Request interceptor to attach Bearer token from localStorage

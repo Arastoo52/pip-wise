@@ -20,20 +20,36 @@ app.set('trust proxy', 1);
 app.use(helmet());
 
 // Cross-Origin Resource Sharing (CORS)
+const allowedOrigins = [
+  ...config.corsOrigins,
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, Postman)
       if (!origin) return callback(null, true);
 
-      if (config.corsOrigins.includes(origin) || config.env === 'development') {
+      // Permissive in dev or for localhost, vercel, onrender, or configured origins
+      if (
+        config.env === 'development' ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.onrender.com') ||
+        origin.includes('localhost')
+      ) {
         return callback(null, true);
       }
-      return callback(new ApiError(403, 'Not allowed by CORS policy'));
+      return callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   })
 );
 
@@ -58,8 +74,25 @@ app.use('/', seoRoutes);
 // General API Rate Limiter
 app.use('/api', apiLimiter);
 
-// API Routes Mounting (v1)
+// Root Welcome & Status
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'PipWise Backend API is active and operational 🚀',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/v1/health',
+      auth: '/api/v1/auth',
+      brokers: '/api/v1/brokers',
+      admin: '/api/v1/admin',
+    },
+  });
+});
+
+// API Routes Mounting (v1, api, and direct shortcuts for maximum compatibility)
 app.use('/api/v1', routes);
+app.use('/api', routes);
+app.use('/', routes);
 
 // 404 Route Not Found Handler
 app.use((req, res, next) => {
