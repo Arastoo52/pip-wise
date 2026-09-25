@@ -7,6 +7,8 @@ import {
   testSmtpConnection,
   getMe,
   logout,
+  submitKyc,
+  getKycStatus,
 } from '../controllers/auth.controller.js';
 import {
   registerValidation,
@@ -35,5 +37,9 @@ router.route('/smtp-test').get(otpLimiter, testSmtpConnection);
 // Protected routes requiring valid JWT authentication
 router.route('/me').get(verifyJWT, getMe);
 router.route('/logout').post(verifyJWT, logout);
+
+// User KYC verification routes
+router.route('/kyc/submit').post(verifyJWT, submitKyc);
+router.route('/kyc/status').get(verifyJWT, getKycStatus);
 
 export default router;

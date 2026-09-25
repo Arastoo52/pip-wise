@@ -35,6 +35,11 @@ import {
   Quote,
   UserPlus,
   UserMinus,
+  Eye,
+  ExternalLink,
+  FileText,
+  ZoomIn,
+  Sparkles,
 } from 'lucide-react';
 import useAuth from '../features/auth/hooks/useAuth.js';
 import adminService from '../features/admin/services/admin.service.js';
@@ -139,6 +144,455 @@ const DeleteConfirmModal = React.memo(({ modalData, onClose, onConfirm }) => {
   );
 });
 
+// ═══════════════════════════════════════════════════════════════
+// BROKER APPLICATION INSPECTION MODAL (FULL DETAILS & DOSSIER)
+// ═══════════════════════════════════════════════════════════════
+const BrokerInspectModal = React.memo(({ broker, onClose, onApprove, onReject }) => {
+  if (!broker) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key="broker-inspect-overlay"
+        className="d2-modal-overlay"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.12 }}
+        onClick={onClose}
+      >
+        <motion.div
+          key="broker-inspect-card"
+          className="d2-inspect-modal"
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="d2-inspect-header">
+            <div className="d2-inspect-title-wrap">
+              <div
+                className="d2-inspect-logo-box"
+                style={{ borderColor: broker.brandColor || '#595ef2', color: broker.brandColor || '#595ef2' }}
+              >
+                <Building2 size={24} />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h2 className="d2-inspect-name">{broker.name}</h2>
+                  <span className={`d2-status-pill ${broker.status || 'pending'}`}>
+                    {broker.status === 'approved' || broker.status === 'active'
+                      ? 'Approved & Live'
+                      : broker.status === 'rejected'
+                      ? 'Rejected'
+                      : 'Pending Review'}
+                  </span>
+                  {(broker.isVerified || broker.isVerifiedPartner) ? (
+                    <span className="d2-badge-verified-glow">
+                      <ShieldCheck size={13} strokeWidth={2.5} />
+                      Verified Broker
+                    </span>
+                  ) : (
+                    <span className="d2-badge-unverified">Unverified Listing</span>
+                  )}
+                </div>
+                <p className="d2-inspect-sub">
+                  Rank: {broker.rank || '#--'} • Trust Score: {broker.trustScore || 90}/100 • Rating: {broker.rating || 4.8}★ ({broker.reviewsCount || '0 reviews'})
+                </p>
+              </div>
+            </div>
+            <button className="d2-inspect-close-btn" onClick={onClose} aria-label="Close modal">
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Modal Body */}
+          <div className="d2-inspect-body">
+            {/* Section 1: Contact & Company Profile */}
+            <div className="d2-inspect-section">
+              <h4 className="d2-inspect-section-title">Company &amp; Representative Information</h4>
+              <div className="d2-inspect-grid">
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Representative Name</span>
+                  <span className="d2-cell-val">{broker.representativeName || 'Official Partner'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Contact Email</span>
+                  <span className="d2-cell-val">{broker.contactEmail || 'N/A'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Official Website</span>
+                  <span className="d2-cell-val">
+                    {broker.websiteUrl ? (
+                      <a href={broker.websiteUrl} target="_blank" rel="noopener noreferrer" className="d2-inspect-link">
+                        <span>{broker.websiteUrl}</span>
+                        <ExternalLink size={11} />
+                      </a>
+                    ) : (
+                      'N/A'
+                    )}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Headquarters / Founded</span>
+                  <span className="d2-cell-val">{broker.headquarters || 'N/A'} (Est. {broker.yearFounded || 'N/A'})</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Regulatory & Safety */}
+            <div className="d2-inspect-section">
+              <h4 className="d2-inspect-section-title">Regulatory Compliance &amp; Licenses</h4>
+              <div className="d2-inspect-grid">
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Regulatory Authorities</span>
+                  <span className="d2-cell-val">
+                    {Array.isArray(broker.regulatorsList) && broker.regulatorsList.length > 0
+                      ? broker.regulatorsList.join(', ')
+                      : broker.regulation || 'Tier-1 Regulated'}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">License Number</span>
+                  <span className="d2-cell-val" style={{ fontFamily: 'monospace' }}>
+                    {broker.licenseNumber || 'Verified by PipWise Compliance'}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Execution Type</span>
+                  <span className="d2-cell-val">{broker.executionType || 'STP / ECN Direct'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Account Types</span>
+                  <span className="d2-cell-val">{broker.accountTypes || 'Standard, Raw Spread'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Trading Conditions & Payments */}
+            <div className="d2-inspect-section">
+              <h4 className="d2-inspect-section-title">Trading Specs &amp; Funding Channels</h4>
+              <div className="d2-inspect-grid">
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Minimum Deposit</span>
+                  <span className="d2-cell-val highlight">{broker.minDeposit || `₹${broker.minDepositINR || 850}`}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Spreads</span>
+                  <span className="d2-cell-val highlight">{broker.spread || 'From 0.1 pips'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Max Leverage</span>
+                  <span className="d2-cell-val">{broker.maxLeverage || '1:1000'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Trading Platforms</span>
+                  <span className="d2-cell-val">
+                    {Array.isArray(broker.platformsList) && broker.platformsList.length > 0
+                      ? broker.platformsList.join(', ')
+                      : broker.platforms || 'MT4, MT5'}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
+                  <span className="d2-cell-label">Accepted Payment &amp; Withdrawal Modes</span>
+                  <span className="d2-cell-val">
+                    {Array.isArray(broker.paymentsList) && broker.paymentsList.length > 0
+                      ? broker.paymentsList.join(' • ')
+                      : broker.payments || 'UPI, IMPS, NetBanking, Cards, Crypto'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Features & Description */}
+            <div className="d2-inspect-section">
+              <h4 className="d2-inspect-section-title">Editorial Summary &amp; Highlights</h4>
+              {broker.description && (
+                <p className="d2-inspect-desc">{broker.description}</p>
+              )}
+              {Array.isArray(broker.features) && broker.features.length > 0 && (
+                <div className="d2-inspect-features-wrap">
+                  {broker.features.map((feat, idx) => (
+                    <span key={idx} className="d2-inspect-feature-chip">
+                      <Check size={11} strokeWidth={3} color="#10b981" />
+                      {feat}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="d2-inspect-footer">
+            <button type="button" className="d2-modal-cancel-btn" onClick={onClose}>
+              Close
+            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {broker.status !== 'rejected' && (
+                <button
+                  type="button"
+                  className="d2-btn-reject"
+                  style={{ padding: '8px 16px', fontSize: '13px' }}
+                  onClick={() => {
+                    onReject(broker);
+                    onClose();
+                  }}
+                >
+                  <X size={14} strokeWidth={2.5} />
+                  <span>Reject Broker</span>
+                </button>
+              )}
+              {broker.status !== 'approved' && broker.status !== 'active' && (
+                <button
+                  type="button"
+                  className="d2-btn-approve"
+                  style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 700 }}
+                  onClick={() => {
+                    onApprove(broker);
+                    onClose();
+                  }}
+                >
+                  <ShieldCheck size={15} strokeWidth={2.5} />
+                  <span>Approve &amp; Grant Verified Badge</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+});
+
+// ═══════════════════════════════════════════════════════════════
+// TRADER KYC AADHAAR INSPECTION MODAL (LEGAL DETAILS & PHOTOS)
+// ═══════════════════════════════════════════════════════════════
+const UserKycInspectModal = React.memo(({
+  kycUser,
+  onClose,
+  onApprove,
+  onReject,
+  rejectReason,
+  setRejectReason,
+}) => {
+  const [activeTab, setActiveTab] = useState('front'); // 'front' | 'back'
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  if (!kycUser) return null;
+
+  const kyc = kycUser.kycData || {};
+  const frontImg = kyc.aadhaarFrontImage;
+  const backImg = kyc.aadhaarBackImage;
+  const currentImg = activeTab === 'front' ? frontImg : backImg;
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key="kyc-inspect-overlay"
+        className="d2-modal-overlay"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.12 }}
+        onClick={onClose}
+      >
+        <motion.div
+          key="kyc-inspect-card"
+          className="d2-inspect-modal kyc-modal-wide"
+          initial={{ opacity: 0, scale: 0.96, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 12 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="d2-inspect-header">
+            <div className="d2-inspect-title-wrap">
+              <div className="d2-inspect-logo-box" style={{ borderColor: '#eab308', color: '#eab308' }}>
+                <ShieldCheck size={26} />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h2 className="d2-inspect-name">
+                    {kyc.fullName || kycUser.username}
+                  </h2>
+                  <span className={`d2-status-pill ${kycUser.kycStatus || 'pending'}`}>
+                    {kycUser.kycStatus === 'verified'
+                      ? 'Verified Trader'
+                      : kycUser.kycStatus === 'rejected'
+                      ? 'Rejected'
+                      : 'Pending Review'}
+                  </span>
+                  {kycUser.isKycVerified && (
+                    <span className="d2-badge-verified-glow">
+                      <CheckCircle2 size={13} strokeWidth={2.5} />
+                      Verified Badge Active
+                    </span>
+                  )}
+                </div>
+                <p className="d2-inspect-sub">
+                  Account: @{kycUser.username} • Email: {kycUser.email} • Submitted:{' '}
+                  {kyc.submittedAt ? new Date(kyc.submittedAt).toLocaleString() : 'Recently'}
+                </p>
+              </div>
+            </div>
+            <button className="d2-inspect-close-btn" onClick={onClose} aria-label="Close modal">
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Modal Body */}
+          <div className="d2-inspect-body d2-kyc-body-split">
+            {/* LEFT / TOP: AADHAAR CARD IMAGE VIEWER */}
+            <div className="d2-kyc-doc-viewer">
+              <div className="d2-kyc-doc-tabs">
+                <button
+                  type="button"
+                  className={`d2-kyc-doc-tab ${activeTab === 'front' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTab('front');
+                    setIsZoomed(false);
+                  }}
+                >
+                  <FileText size={13} />
+                  <span>Aadhaar Front {frontImg ? '✓' : '(Missing)'}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`d2-kyc-doc-tab ${activeTab === 'back' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTab('back');
+                    setIsZoomed(false);
+                  }}
+                >
+                  <FileText size={13} />
+                  <span>Aadhaar Back {backImg ? '✓' : '(Missing)'}</span>
+                </button>
+              </div>
+
+              <div className={`d2-kyc-img-frame ${isZoomed ? 'zoomed' : ''}`}>
+                {currentImg ? (
+                  <img
+                    src={currentImg}
+                    alt={`Aadhaar ${activeTab}`}
+                    className="d2-kyc-img"
+                    onClick={() => setIsZoomed(!isZoomed)}
+                    title="Click to toggle zoom"
+                  />
+                ) : (
+                  <div className="d2-kyc-img-placeholder">
+                    <AlertTriangle size={32} color="#f59e0b" />
+                    <p>No {activeTab} photo provided</p>
+                  </div>
+                )}
+                {currentImg && (
+                  <div className="d2-kyc-img-overlay-bar">
+                    <span>
+                      Viewing {activeTab === 'front' ? 'Front Side' : 'Back Side'} photo
+                    </span>
+                    <button
+                      type="button"
+                      className="d2-zoom-btn"
+                      onClick={() => setIsZoomed(!isZoomed)}
+                    >
+                      <ZoomIn size={12} />
+                      <span>{isZoomed ? 'Reset Zoom' : 'Zoom 1.5x'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* RIGHT / BOTTOM: EXTRACTED FORM DETAILS & CHECKS */}
+            <div className="d2-kyc-info-column">
+              <h4 className="d2-inspect-section-title">Submitted Identity Credentials</h4>
+              <div className="d2-inspect-grid">
+                <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
+                  <span className="d2-cell-label">Full Legal Name (as on Aadhaar)</span>
+                  <span className="d2-cell-val highlight" style={{ fontSize: '15px' }}>
+                    {kyc.fullName || 'Not Provided'}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
+                  <span className="d2-cell-label">12-Digit Aadhaar Number</span>
+                  <span className="d2-cell-val" style={{ fontFamily: 'monospace', letterSpacing: '0.1em', fontSize: '14px', color: '#10b981' }}>
+                    {kyc.aadhaarNumber ? kyc.aadhaarNumber.replace(/(\d{4})(?=\d)/g, '$1 ') : 'Not Provided'}
+                  </span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Date of Birth</span>
+                  <span className="d2-cell-val">{kyc.dob || 'Not Provided'}</span>
+                </div>
+                <div className="d2-inspect-cell">
+                  <span className="d2-cell-label">Contact Phone</span>
+                  <span className="d2-cell-val">{kyc.phone || 'Not Provided'}</span>
+                </div>
+                <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
+                  <span className="d2-cell-label">Permanent Address</span>
+                  <span className="d2-cell-val" style={{ lineHeight: '1.4' }}>
+                    {kyc.address || 'Not Provided'}
+                  </span>
+                </div>
+              </div>
+
+              {/* REJECTION REASON INPUT (IF REJECTING OR PREVIOUSLY REJECTED) */}
+              <div className="d2-kyc-decision-box">
+                <label className="d2-cell-label" style={{ marginBottom: '6px' }}>
+                  Correction / Rejection Notes (displayed to trader):
+                </label>
+                <input
+                  type="text"
+                  className="d2-search-input"
+                  style={{ width: '100%', borderRadius: '8px' }}
+                  placeholder="e.g. Aadhaar back photo is blurry, name mismatch..."
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="d2-inspect-footer">
+            <button type="button" className="d2-modal-cancel-btn" onClick={onClose}>
+              Close
+            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                className="d2-btn-reject"
+                style={{ padding: '8px 16px', fontSize: '13px' }}
+                onClick={() => {
+                  onReject(kycUser._id, rejectReason);
+                  onClose();
+                }}
+              >
+                <X size={14} strokeWidth={2.5} />
+                <span>Reject KYC</span>
+              </button>
+              <button
+                type="button"
+                className="d2-btn-approve"
+                style={{ padding: '8px 18px', fontSize: '13px', fontWeight: 700 }}
+                onClick={() => {
+                  onApprove(kycUser._id);
+                  onClose();
+                }}
+              >
+                <ShieldCheck size={15} strokeWidth={2.5} />
+                <span>Approve &amp; Grant Verified Trader Badge</span>
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+});
+
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -193,6 +647,16 @@ export default function AdminDashboard() {
     memory: { heapUsedMB: 0, heapTotalMB: 0 },
   });
 
+  // KYC Verification States
+  const [kycSubmissions, setKycSubmissions] = useState([]);
+  const [kycCounts, setKycCounts] = useState({ total: 0, pending: 0, verified: 0, rejected: 0 });
+  const [kycFilter, setKycFilter] = useState('all');
+  const [selectedKyc, setSelectedKyc] = useState(null);
+  const [kycRejectReason, setKycRejectReason] = useState('');
+
+  // Broker Application Inspection State
+  const [inspectingBroker, setInspectingBroker] = useState(null);
+
   // Delete Confirmation Modal State
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
@@ -231,13 +695,14 @@ export default function AdminDashboard() {
   const loadAdminData = async () => {
     try {
       setLoading(true);
-      const [statsRes, brokersRes, usersRes, reviewsRes, healthRes, testimonialsRes] = await Promise.allSettled([
+      const [statsRes, brokersRes, usersRes, reviewsRes, healthRes, testimonialsRes, kycRes] = await Promise.allSettled([
         adminService.getStats(),
         adminService.getBrokers(),
         adminService.getUsers(),
         adminService.getReviews(),
         apiClient.get('/health'),
         adminService.getTestimonials(),
+        adminService.getKycSubmissions(),
       ]);
 
       if (statsRes.status === 'fulfilled' && statsRes.value?.data) {
@@ -263,6 +728,14 @@ export default function AdminDashboard() {
         const fallback = await fetchActiveTestimonials();
         setTestimonialsList(fallback);
       }
+
+      // Load KYC verification requests
+      if (kycRes.status === 'fulfilled' && kycRes.value?.data) {
+        setKycSubmissions(kycRes.value.data.submissions || []);
+        if (kycRes.value.data.counts) {
+          setKycCounts(kycRes.value.data.counts);
+        }
+      }
     } catch (err) {
       console.error('Error fetching admin metrics:', err);
       const fallback = await fetchActiveTestimonials();
@@ -283,6 +756,8 @@ export default function AdminDashboard() {
       setActiveNav('dashboard');
     } else if (viewKey === 'brokers') {
       setActiveNav('brokers');
+    } else if (viewKey === 'kyc') {
+      setActiveNav('kyc');
     } else if (viewKey === 'reviews') {
       setActiveNav('reviews');
     } else if (viewKey === 'testimonials') {
@@ -335,33 +810,65 @@ export default function AdminDashboard() {
     });
   }, [testimonialsList, testimonialFilter, searchQuery]);
 
-  // 1. APPROVE BROKER
+  // 1. APPROVE BROKER (WITH VERIFIED BROKER BADGE)
   const handleApproveBroker = useCallback(async (broker) => {
     try {
       await adminService.updateBrokerStatus(broker._id, 'approved');
       setBrokersList((prev) =>
         prev.map((b) =>
-          b._id === broker._id ? { ...b, status: 'approved', isVerified: true } : b
+          b._id === broker._id
+            ? {
+                ...b,
+                status: 'approved',
+                isVerified: true,
+                isVerifiedPartner: true,
+                verificationBadge: 'Verified Broker',
+              }
+            : b
         )
       );
+      if (inspectingBroker?._id === broker._id) {
+        setInspectingBroker((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: 'approved',
+                isVerified: true,
+                isVerifiedPartner: true,
+                verificationBadge: 'Verified Broker',
+              }
+            : null
+        );
+      }
       setStats((prev) => ({
         ...prev,
         pendingBrokers: Math.max(0, prev.pendingBrokers - 1),
         approvedBrokers: (prev.approvedBrokers || 0) + 1,
       }));
-      showToast(`Broker "${broker.name}" approved & published live on PipWise!`);
+      showToast(`Broker "${broker.name}" approved & awarded Verified Broker badge!`);
     } catch (err) {
       showToast(err.message || 'Failed to approve broker');
     }
-  }, [showToast]);
+  }, [inspectingBroker, showToast]);
 
   // 2. REJECT BROKER
   const handleRejectBroker = useCallback(async (broker) => {
     try {
       await adminService.updateBrokerStatus(broker._id, 'rejected');
       setBrokersList((prev) =>
-        prev.map((b) => (b._id === broker._id ? { ...b, status: 'rejected' } : b))
+        prev.map((b) =>
+          b._id === broker._id
+            ? { ...b, status: 'rejected', isVerified: false, isVerifiedPartner: false }
+            : b
+        )
       );
+      if (inspectingBroker?._id === broker._id) {
+        setInspectingBroker((prev) =>
+          prev
+            ? { ...prev, status: 'rejected', isVerified: false, isVerifiedPartner: false }
+            : null
+        );
+      }
       setStats((prev) => ({
         ...prev,
         pendingBrokers: Math.max(0, prev.pendingBrokers - 1),
@@ -370,6 +877,63 @@ export default function AdminDashboard() {
       showToast(`Broker "${broker.name}" rejected (hidden from public site)`);
     } catch (err) {
       showToast(err.message || 'Failed to reject broker');
+    }
+  }, [inspectingBroker, showToast]);
+
+  // 3. VERIFY OR REJECT TRADER KYC (AADHAAR)
+  const handleVerifyUserKyc = useCallback(async (userId, status, reason = '') => {
+    try {
+      await adminService.verifyUserKyc(userId, status, reason);
+
+      setKycSubmissions((prev) =>
+        prev.map((sub) =>
+          sub._id === userId
+            ? {
+                ...sub,
+                kycStatus: status,
+                isKycVerified: status === 'verified',
+                kycData: {
+                  ...sub.kycData,
+                  rejectionReason: status === 'rejected' ? reason : '',
+                  verifiedAt: status === 'verified' ? new Date() : null,
+                },
+              }
+            : sub
+        )
+      );
+
+      setUsersList((prev) =>
+        prev.map((u) =>
+          u._id === userId
+            ? {
+                ...u,
+                kycStatus: status,
+                isKycVerified: status === 'verified',
+                kycData: {
+                  ...u.kycData,
+                  rejectionReason: status === 'rejected' ? reason : '',
+                  verifiedAt: status === 'verified' ? new Date() : null,
+                },
+              }
+            : u
+        )
+      );
+
+      setKycCounts((prev) => ({
+        ...prev,
+        pending: Math.max(0, prev.pending - 1),
+        verified: status === 'verified' ? prev.verified + 1 : prev.verified,
+        rejected: status === 'rejected' ? prev.rejected + 1 : prev.rejected,
+      }));
+
+      if (status === 'verified') {
+        showToast('KYC Approved! Trader awarded the Verified Trader badge.');
+      } else {
+        showToast('KYC rejected. Feedback recorded for trader.');
+      }
+      setSelectedKyc(null);
+    } catch (err) {
+      showToast(err.message || 'Failed to update KYC status');
     }
   }, [showToast]);
 
@@ -623,6 +1187,31 @@ export default function AdminDashboard() {
     );
   }, [reviewsList, searchQuery]);
 
+  // Filtered KYC Submissions
+  const filteredKycSubmissions = useMemo(() => {
+    let list = kycSubmissions;
+    if (kycFilter === 'pending') {
+      list = list.filter((s) => s.kycStatus === 'pending');
+    } else if (kycFilter === 'verified') {
+      list = list.filter((s) => s.kycStatus === 'verified' || s.isKycVerified);
+    } else if (kycFilter === 'rejected') {
+      list = list.filter((s) => s.kycStatus === 'rejected');
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (s) =>
+          s.username?.toLowerCase().includes(q) ||
+          s.email?.toLowerCase().includes(q) ||
+          s.kycData?.fullName?.toLowerCase().includes(q) ||
+          s.kycData?.aadhaarNumber?.includes(q) ||
+          s.kycData?.phone?.includes(q)
+      );
+    }
+    return list;
+  }, [kycSubmissions, kycFilter, searchQuery]);
+
   return (
     <div className={`d2-canvas ${theme === 'dark' ? 'd2-theme-dark' : ''}`}>
       {/* QUICK SWITCHER BUTTON TO PIPWISE PUBLIC SITE */}
@@ -679,7 +1268,24 @@ export default function AdminDashboard() {
               )}
             </motion.button>
 
-            {/* 3. USERS */}
+            {/* 3. KYC VERIFICATIONS (AADHAAR) */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              className={`d2-dock-item ${activeDock === 'kyc' ? 'active' : ''}`}
+              onClick={() => switchDockView('kyc', 'Trader KYC Verifications')}
+              title="Trader Aadhaar KYC Approvals"
+            >
+              <ShieldCheck size={19} />
+              {kycCounts.pending > 0 ? (
+                <span className="d2-pro-badge" style={{ background: '#f59e0b' }}>
+                  {kycCounts.pending} KYC
+                </span>
+              ) : (
+                <span className="d2-pro-badge">{kycCounts.total}</span>
+              )}
+            </motion.button>
+
+            {/* 4. USERS */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'users' ? 'active' : ''}`}
@@ -690,7 +1296,7 @@ export default function AdminDashboard() {
               <span className="d2-pro-badge">{usersList.length}</span>
             </motion.button>
 
-            {/* 4. REVIEWS */}
+            {/* 5. REVIEWS */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'reviews' ? 'active' : ''}`}
@@ -701,7 +1307,7 @@ export default function AdminDashboard() {
               <span className="d2-pro-badge">{reviewsList.length}</span>
             </motion.button>
 
-            {/* 5. TESTIMONIALS (HOMEPAGE ANIMATION) */}
+            {/* 6. TESTIMONIALS (HOMEPAGE ANIMATION) */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'testimonials' ? 'active' : ''}`}
@@ -712,7 +1318,7 @@ export default function AdminDashboard() {
               <span className="d2-pro-badge">{testimonialsList.length}</span>
             </motion.button>
 
-            {/* 6. ANALYTICS */}
+            {/* 7. ANALYTICS */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'analytics' ? 'active' : ''}`}
@@ -722,7 +1328,7 @@ export default function AdminDashboard() {
               <BarChart3 size={19} />
             </motion.button>
 
-            {/* 7. NOTIFICATIONS */}
+            {/* 8. NOTIFICATIONS */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'notifications' ? 'active' : ''}`}
@@ -730,10 +1336,10 @@ export default function AdminDashboard() {
               title="Notifications"
             >
               <Bell size={19} />
-              {pendingBrokers.length > 0 && <span className="d2-action-dot" />}
+              {(pendingBrokers.length > 0 || kycCounts.pending > 0) && <span className="d2-action-dot" />}
             </motion.button>
 
-            {/* 8. PROFILE / SETTINGS */}
+            {/* 9. PROFILE / SETTINGS */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'profile' ? 'active' : ''}`}
@@ -784,6 +1390,25 @@ export default function AdminDashboard() {
               </button>
 
               <button
+                className={`d2-nav-item ${activeNav === 'kyc' || activeDock === 'kyc' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveNav('kyc');
+                  setActiveDock('kyc');
+                  showToast('Navigated to Trader KYC Verifications');
+                }}
+              >
+                <ShieldCheck size={15} />
+                <span>
+                  KYC Verifications ({kycCounts.total})
+                  {kycCounts.pending > 0 && (
+                    <span style={{ marginLeft: '4px', color: '#f59e0b', fontWeight: 800 }}>
+                      • {kycCounts.pending} Pending
+                    </span>
+                  )}
+                </span>
+              </button>
+
+              <button
                 className={`d2-nav-item ${activeNav === 'reviews' || activeDock === 'reviews' ? 'active' : ''}`}
                 onClick={() => {
                   setActiveNav('reviews');
@@ -814,7 +1439,9 @@ export default function AdminDashboard() {
                 type="text"
                 className="d2-search-input"
                 placeholder={
-                  activeDock === 'users'
+                  activeDock === 'kyc' || activeNav === 'kyc'
+                    ? 'Search KYC by username, email, full name, or Aadhaar...'
+                    : activeDock === 'users'
                     ? 'Search registered users by username/email...'
                     : activeDock === 'reviews'
                     ? 'Search reviews or brokers...'
@@ -1013,6 +1640,29 @@ export default function AdminDashboard() {
                           <p className="d2-feature-card-desc">Homepage ticker animation</p>
                         </div>
                       </div>
+
+                      {/* CARD 6: REAL KYC SUBMISSIONS */}
+                      <div
+                        className="d2-feature-card"
+                        onClick={() => switchDockView('kyc', 'KYC Verifications')}
+                        style={{
+                          borderColor: kycCounts.pending > 0 ? 'rgba(234, 179, 8, 0.4)' : undefined,
+                        }}
+                      >
+                        <div className="d2-feature-illu">
+                          <ShieldCheck size={30} strokeWidth={1.8} color="#eab308" />
+                        </div>
+                        <div>
+                          <h3 className="d2-feature-card-title">{kycCounts.total} KYC Requests</h3>
+                          <p className="d2-feature-card-desc">
+                            {kycCounts.pending > 0 ? (
+                              <strong style={{ color: '#d97706' }}>{kycCounts.pending} pending review</strong>
+                            ) : (
+                              `${kycCounts.verified} verified traders`
+                            )}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </section>
 
@@ -1066,7 +1716,15 @@ export default function AdminDashboard() {
                                 Contact: {broker.contactEmail} ({broker.representativeName || 'Partner'})
                               </span>
                             </p>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                              <button
+                                className="d2-btn-inspect"
+                                onClick={() => setInspectingBroker(broker)}
+                                title="View full submitted broker application details"
+                              >
+                                <Eye size={12} strokeWidth={2.4} />
+                                <span>Inspect Details</span>
+                              </button>
                               <button
                                 className="d2-btn-approve"
                                 onClick={() => handleApproveBroker(broker)}
@@ -1516,6 +2174,17 @@ export default function AdminDashboard() {
                           </div>
 
                           <div className="d2-item-actions">
+                            {/* INSPECT BROKER APPLICATION DETAILS BUTTON */}
+                            <button
+                              type="button"
+                              className="d2-btn-inspect"
+                              onClick={() => setInspectingBroker(broker)}
+                              title="Inspect full broker application submission"
+                            >
+                              <Eye size={12} strokeWidth={2.4} />
+                              <span>Inspect Details</span>
+                            </button>
+
                             {/* APPROVE BUTTON (IF PENDING OR REJECTED) */}
                             {broker.status !== 'approved' && broker.status !== 'active' && (
                               <button
@@ -1561,6 +2230,198 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                       ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* VIEW: TRADER KYC VERIFICATION MANAGEMENT */}
+              {(activeDock === 'kyc' || activeNav === 'kyc') && (
+                <motion.div
+                  key="view-kyc"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="d2-generic-view"
+                >
+                  <div className="d2-view-banner">
+                    <div className="d2-view-banner-text">
+                      <h2>Trader Aadhaar KYC Queue ({filteredKycSubmissions.length})</h2>
+                      <p>
+                        Inspect uploaded front and back Aadhaar documents, verify trader legal identities, and award the official Verified Trader badge.
+                      </p>
+                    </div>
+                    <button className="d2-banner-btn" onClick={() => loadAdminData()}>
+                      <RefreshCw size={13} strokeWidth={2.5} />
+                      <span>Refresh Queue</span>
+                    </button>
+                  </div>
+
+                  {/* KYC STATUS FILTER TABS */}
+                  <div className="d2-filter-tabs">
+                    <button
+                      className={`d2-tab-btn ${kycFilter === 'all' ? 'active' : ''}`}
+                      onClick={() => setKycFilter('all')}
+                    >
+                      All Submissions ({kycCounts.total})
+                    </button>
+                    <button
+                      className={`d2-tab-btn ${kycFilter === 'pending' ? 'active' : ''}`}
+                      onClick={() => setKycFilter('pending')}
+                      style={{
+                        color: kycCounts.pending > 0 ? '#d97706' : undefined,
+                        fontWeight: kycCounts.pending > 0 ? 800 : undefined,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                      }}
+                    >
+                      <Clock size={12} strokeWidth={2.5} />
+                      <span>Pending Approvals ({kycCounts.pending})</span>
+                    </button>
+                    <button
+                      className={`d2-tab-btn ${kycFilter === 'verified' ? 'active' : ''}`}
+                      onClick={() => setKycFilter('verified')}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <CheckCircle2 size={12} strokeWidth={2.5} color="#10b981" />
+                      <span>Verified Traders ({kycCounts.verified})</span>
+                    </button>
+                    <button
+                      className={`d2-tab-btn ${kycFilter === 'rejected' ? 'active' : ''}`}
+                      onClick={() => setKycFilter('rejected')}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <XCircle size={12} strokeWidth={2.5} color="#ef4444" />
+                      <span>Rejected ({kycCounts.rejected})</span>
+                    </button>
+                  </div>
+
+                  {/* LIST OF KYC SUBMISSIONS */}
+                  <div className="d2-management-list">
+                    {filteredKycSubmissions.length === 0 ? (
+                      <div className="d2-view-card" style={{ textAlign: 'center', padding: '36px 20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                          <ShieldCheck size={36} color="#10b981" />
+                        </div>
+                        <h3 style={{ fontSize: '15px', marginBottom: '4px' }}>No KYC Submissions in this view</h3>
+                        <p style={{ color: '#94a3b8', fontSize: '13px' }}>
+                          {kycFilter === 'pending'
+                            ? 'All trader KYC submissions have been verified and processed.'
+                            : `No submissions found matching the "${kycFilter}" status filter.`}
+                        </p>
+                      </div>
+                    ) : (
+                      filteredKycSubmissions.map((sub) => {
+                        const kyc = sub.kycData || {};
+                        const isPending = sub.kycStatus === 'pending';
+                        const isVerified = sub.kycStatus === 'verified' || sub.isKycVerified;
+
+                        return (
+                          <div key={sub._id} className="d2-admin-item-card d2-kyc-card">
+                            <div className="d2-item-primary">
+                              <div
+                                className="d2-item-avatar-box"
+                                style={{
+                                  background: isVerified ? 'rgba(16, 185, 129, 0.15)' : 'rgba(234, 179, 8, 0.15)',
+                                  color: isVerified ? '#10b981' : '#eab308',
+                                }}
+                              >
+                                <ShieldCheck size={22} strokeWidth={2} />
+                              </div>
+                              <div className="d2-item-info">
+                                <span className="d2-item-title">
+                                  {kyc.fullName || sub.username}
+                                  <span className={`d2-status-pill ${sub.kycStatus || 'pending'}`}>
+                                    {sub.kycStatus === 'verified'
+                                      ? 'Verified Trader'
+                                      : sub.kycStatus === 'rejected'
+                                      ? 'Rejected'
+                                      : 'Pending Review'}
+                                  </span>
+                                  {sub.isKycVerified && (
+                                    <span className="d2-badge-verified">Verified Badge Active</span>
+                                  )}
+                                </span>
+                                <span className="d2-item-sub">
+                                  Username: @{sub.username} • Email: {sub.email} • Phone: {kyc.phone || 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* METRICS / AADHAAR SUMMARY & THUMBNAILS */}
+                            <div className="d2-item-metrics">
+                              <div className="d2-metric-pill">
+                                <span className="d2-metric-pill-label">Aadhaar Number</span>
+                                <span className="d2-metric-pill-val" style={{ fontFamily: 'monospace' }}>
+                                  {kyc.aadhaarNumber ? `•••• •••• ${kyc.aadhaarNumber.slice(-4)}` : 'N/A'}
+                                </span>
+                              </div>
+                              <div className="d2-metric-pill">
+                                <span className="d2-metric-pill-label">DOB</span>
+                                <span className="d2-metric-pill-val">{kyc.dob || 'N/A'}</span>
+                              </div>
+                              {/* Thumbnails */}
+                              <div className="d2-kyc-mini-thumbs">
+                                {kyc.aadhaarFrontImage ? (
+                                  <img src={kyc.aadhaarFrontImage} alt="Front" className="d2-mini-thumb" title="Aadhaar Front" />
+                                ) : (
+                                  <span className="d2-mini-thumb-empty">No Front</span>
+                                )}
+                                {kyc.aadhaarBackImage ? (
+                                  <img src={kyc.aadhaarBackImage} alt="Back" className="d2-mini-thumb" title="Aadhaar Back" />
+                                ) : (
+                                  <span className="d2-mini-thumb-empty">No Back</span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* ACTION BUTTONS */}
+                            <div className="d2-item-actions">
+                              <button
+                                type="button"
+                                className="d2-btn-inspect"
+                                onClick={() => {
+                                  setSelectedKyc(sub);
+                                  setKycRejectReason(kyc.rejectionReason || '');
+                                }}
+                                title="Inspect full Aadhaar document images and details"
+                              >
+                                <Eye size={13} strokeWidth={2.4} />
+                                <span>Inspect &amp; Verify</span>
+                              </button>
+
+                              {!isVerified && (
+                                <button
+                                  type="button"
+                                  className="d2-btn-approve"
+                                  onClick={() => handleVerifyUserKyc(sub._id, 'verified')}
+                                  title="Quick Approve KYC"
+                                >
+                                  <Check size={12} strokeWidth={2.8} />
+                                  <span>Approve</span>
+                                </button>
+                              )}
+
+                              {sub.kycStatus !== 'rejected' && (
+                                <button
+                                  type="button"
+                                  className="d2-btn-reject"
+                                  onClick={() => {
+                                    setSelectedKyc(sub);
+                                    setKycRejectReason('Aadhaar photo is unclear. Please re-upload clear photos.');
+                                  }}
+                                  title="Reject KYC"
+                                >
+                                  <X size={12} strokeWidth={2.8} />
+                                  <span>Reject</span>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </motion.div>
@@ -2113,6 +2974,24 @@ export default function AdminDashboard() {
           </div>
         </main>
       </div>
+
+      {/* BROKER APPLICATION INSPECTION MODAL */}
+      <BrokerInspectModal
+        broker={inspectingBroker}
+        onClose={() => setInspectingBroker(null)}
+        onApprove={handleApproveBroker}
+        onReject={handleRejectBroker}
+      />
+
+      {/* TRADER KYC AADHAAR INSPECTION MODAL */}
+      <UserKycInspectModal
+        kycUser={selectedKyc}
+        onClose={() => setSelectedKyc(null)}
+        onApprove={(userId) => handleVerifyUserKyc(userId, 'verified')}
+        onReject={(userId, reason) => handleVerifyUserKyc(userId, 'rejected', reason)}
+        rejectReason={kycRejectReason}
+        setRejectReason={setKycRejectReason}
+      />
 
       {/* PROFESSIONAL CONFIRMATION MODAL (PERMANENT DELETE BROKER / USER / REVIEW / TESTIMONIAL) */}
       <DeleteConfirmModal

@@ -1,0 +1,317 @@
+/* ═══════════════════════════════════════════════════════════════
+   KYC MODAL STYLING — LUXURY DARK GLASSMORPHISM
+   ═══════════════════════════════════════════════════════════════ */
+
+.kyc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(4, 7, 16, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.kyc-modal-card {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.94) 0%, rgba(10, 15, 29, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px -10px rgba(46, 232, 194, 0.15);
+  padding: 28px;
+  color: #f1f5f9;
+  position: relative;
+  font-family: inherit;
+}
+
+.kyc-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.kyc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.kyc-shield-halo {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(46, 232, 194, 0.12);
+  border: 1px solid rgba(46, 232, 194, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2ee8c2;
+  box-shadow: 0 0 20px rgba(46, 232, 194, 0.2);
+}
+
+.kyc-modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.kyc-modal-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.kyc-close-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kyc-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* Status Banner in Modal */
+.kyc-status-banner {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.kyc-status-banner.pending {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.kyc-status-banner.verified {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.kyc-status-banner.rejected {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* Form Styles */
+.kyc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.kyc-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 580px) {
+  .kyc-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kyc-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kyc-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.kyc-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #f8fafc;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.kyc-input:focus {
+  border-color: #2ee8c2;
+  box-shadow: 0 0 0 2px rgba(46, 232, 194, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+/* Aadhaar Upload Cards */
+.kyc-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.kyc-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 540px) {
+  .kyc-upload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kyc-dropzone {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.4);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.kyc-dropzone:hover {
+  border-color: #2ee8c2;
+  background: rgba(46, 232, 194, 0.04);
+}
+
+.kyc-dropzone.has-file {
+  border-style: solid;
+  border-color: rgba(46, 232, 194, 0.4);
+  padding: 8px;
+}
+
+.kyc-preview-img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.kyc-dropzone-icon {
+  color: #2ee8c2;
+  margin-bottom: 6px;
+}
+
+.kyc-dropzone-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+}
+
+.kyc-dropzone-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.kyc-remove-img-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Consent check */
+.kyc-consent-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.kyc-consent-box input[type="checkbox"] {
+  accent-color: #2ee8c2;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.kyc-consent-text {
+  font-size: 11.5px;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Submit Button */
+.kyc-submit-btn {
+  background: linear-gradient(135deg, #2ee8c2 0%, #10b981 100%);
+  color: #040710;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 18px rgba(46, 232, 194, 0.25);
+  margin-top: 8px;
+}
+
+.kyc-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(46, 232, 194, 0.4);
+}
+
+.kyc-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -13,6 +13,8 @@ import {
   deleteAdminReview,
   updateReviewStatus,
   promoteMeToAdmin,
+  getAllKycSubmissions,
+  verifyUserKyc,
 } from '../controllers/admin.controller.js';
 import {
   getAllAdminTestimonials,
@@ -41,6 +43,10 @@ router.get('/users', getAllUsers);
 router.patch('/users/:id/role', updateUserRole);
 router.patch('/users/:id/status', toggleUserStatus);
 router.delete('/users/:id', deleteUser);
+
+// User KYC Management
+router.get('/kyc', getAllKycSubmissions);
+router.patch('/kyc/:id/status', verifyUserKyc);
 
 // Broker Management
 router.get('/brokers', getAllAdminBrokers);

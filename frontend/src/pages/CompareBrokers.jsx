@@ -915,9 +915,9 @@ export const CompareBrokers = React.memo(({ theme = 'dark' }) => {
                           </div>
                           <div className="broker-name-row">
                             <h3 className="broker-name">{broker.name}</h3>
-                            <span className="broker-badge-pill">
+                            <span className="broker-badge-pill" title="PipWise Verified Partner & Genuine Broker">
                               <CheckCircle2 size={11} className="verified-icon" />
-                              Verified
+                              {(broker.isVerified || broker.isVerifiedPartner) ? 'Verified Broker' : 'Verified'}
                             </span>
                           </div>
                         </div>

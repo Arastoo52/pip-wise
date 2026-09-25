@@ -179,7 +179,23 @@ const brokerSchema = new mongoose.Schema(
     },
     isVerified: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    isVerifiedPartner: {
+      type: Boolean,
+      default: false,
+    },
+    verificationBadge: {
+      type: String,
+      default: 'Verified Broker',
+    },
+    licenseNumber: {
+      type: String,
+      default: '',
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
     },
     isSeeded: {
       type: Boolean,

@@ -316,11 +316,35 @@ const TopForexBrokers = ({ onSelectBroker }) => {
                   <span className="broker-reviews-count">({broker.reviewsCount})</span>
                 </div>
 
-                {/* Highlight Badge Pill */}
-                <div className="broker-card-badge-wrap">
+                {/* Highlight Badge Pill & Verified Badge */}
+                <div className="broker-card-badge-wrap" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   <span className={`broker-highlight-pill pill-theme-${broker.badgeTheme || 'emerald'}`}>
                     {broker.highlightBadge}
                   </span>
+                  {(broker.isVerified || broker.isVerifiedPartner) && (
+                    <span
+                      className="broker-verified-badge"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.16)',
+                        color: '#10b981',
+                        border: '1px solid rgba(16, 185, 129, 0.4)',
+                        borderRadius: '12px',
+                        padding: '2px 8px',
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        letterSpacing: '0.02em',
+                      }}
+                      title="PipWise Verified Partner & Genuine Broker"
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Verified Broker
+                    </span>
+                  )}
                 </div>
 
                 {/* Specs List Grid */}

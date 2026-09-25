@@ -50,6 +50,21 @@ export const authService = {
   async logout() {
     return await apiClient.post('/auth/logout');
   },
+
+  /**
+   * Submit Aadhaar KYC documents and details
+   * @param {{ fullName: string, dob: string, phone: string, address: string, aadhaarNumber: string, aadhaarFrontImage?: string, aadhaarBackImage?: string }} kycData
+   */
+  async submitKyc(kycData) {
+    return await apiClient.post('/auth/kyc/submit', kycData);
+  },
+
+  /**
+   * Fetch current KYC verification status
+   */
+  async getKycStatus() {
+    return await apiClient.get('/auth/kyc/status');
+  },
 };
 
 export default authService;

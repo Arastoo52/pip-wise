@@ -14,6 +14,7 @@ import {
   Sun,
   Moon,
   LayoutDashboard,
+  CheckCircle2,
 } from 'lucide-react';
 import useAuth from '../../auth/hooks/useAuth.js';
 import { useToast } from './toast/ToastContext.jsx';
@@ -541,7 +542,30 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             </div>
           ) : (
             <div className="pipwise-user-profile-badge" title={user?.username || 'Trader'}>
-              <span className="user-badge-name">{user?.username || 'Trader'}</span>
+              <span className="user-badge-name" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span>{user?.username || 'Trader'}</span>
+                {user?.isKycVerified && (
+                  <span
+                    style={{
+                      background: 'rgba(16, 185, 129, 0.18)',
+                      color: '#10b981',
+                      border: '1px solid rgba(16, 185, 129, 0.4)',
+                      borderRadius: '12px',
+                      padding: '2px 7px',
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      letterSpacing: '0.02em',
+                    }}
+                    title="Verified Trader (Aadhaar KYC Approved)"
+                  >
+                    <CheckCircle2 size={11} strokeWidth={3} />
+                    Verified
+                  </span>
+                )}
+              </span>
               <button
                 type="button"
                 className="user-logout-btn"

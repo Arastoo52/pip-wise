@@ -229,6 +229,12 @@ export const updateBrokerStatus = asyncHandler(async (req, res) => {
   const updateFields = { status };
   if (status === 'approved' || status === 'active') {
     updateFields.isVerified = true;
+    updateFields.isVerifiedPartner = true;
+    updateFields.verificationBadge = 'Verified Broker';
+    updateFields.approvedAt = new Date();
+  } else if (status === 'rejected') {
+    updateFields.isVerified = false;
+    updateFields.isVerifiedPartner = false;
   }
 
   const broker = await Broker.findByIdAndUpdate(id, updateFields, { new: true });
@@ -238,7 +244,7 @@ export const updateBrokerStatus = asyncHandler(async (req, res) => {
 
   const statusLabel =
     status === 'approved' || status === 'active'
-      ? 'Approved & Published Live'
+      ? 'Approved & Verified as Official Partner'
       : status === 'rejected'
       ? 'Rejected'
       : 'Marked as Pending Review';
@@ -382,5 +388,104 @@ export const promoteMeToAdmin = asyncHandler(async (req, res) => {
 
   return res.status(200).json(
     new ApiResponse(200, { user }, 'Congratulations! You have been granted Administrator privileges.')
+  );
+});
+
+/**
+ * @desc    Get all user KYC verification submissions
+ * @route   GET /api/v1/admin/kyc
+ * @access  Private (Admin only)
+ */
+export const getAllKycSubmissions = asyncHandler(async (req, res) => {
+  const { status, search } = req.query;
+
+  const query = {
+    kycStatus: { $ne: 'not_submitted' },
+  };
+
+  if (status && status !== 'all' && ['pending', 'verified', 'rejected'].includes(status)) {
+    query.kycStatus = status;
+  }
+
+  if (search) {
+    query.$or = [
+      { username: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+      { 'kycData.fullName': { $regex: search, $options: 'i' } },
+      { 'kycData.aadhaarNumber': { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  const submissions = await User.find(query)
+    .sort({ 'kycData.submittedAt': -1, updatedAt: -1 })
+    .select('-password');
+
+  const [totalSubmissions, pendingCount, verifiedCount, rejectedCount] = await Promise.all([
+    User.countDocuments({ kycStatus: { $ne: 'not_submitted' } }),
+    User.countDocuments({ kycStatus: 'pending' }),
+    User.countDocuments({ kycStatus: 'verified' }),
+    User.countDocuments({ kycStatus: 'rejected' }),
+  ]);
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        submissions,
+        counts: {
+          total: totalSubmissions,
+          pending: pendingCount,
+          verified: verifiedCount,
+          rejected: rejectedCount,
+        },
+      },
+      'User KYC submissions fetched successfully'
+    )
+  );
+});
+
+/**
+ * @desc    Approve or Reject User KYC with verification status & badge
+ * @route   PATCH /api/v1/admin/kyc/:id/status
+ * @access  Private (Admin only)
+ */
+export const verifyUserKyc = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status, reason } = req.body;
+
+  if (!['verified', 'rejected'].includes(status)) {
+    throw new ApiError(400, 'Invalid status. Must be "verified" or "rejected".');
+  }
+
+  const user = await User.findById(id).select('-password');
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  if (status === 'verified') {
+    user.kycStatus = 'verified';
+    user.isKycVerified = true;
+    if (!user.kycData) user.kycData = {};
+    user.kycData.verifiedAt = new Date();
+    user.kycData.rejectionReason = '';
+  } else {
+    user.kycStatus = 'rejected';
+    user.isKycVerified = false;
+    if (!user.kycData) user.kycData = {};
+    user.kycData.rejectedAt = new Date();
+    user.kycData.rejectionReason =
+      reason || 'Aadhaar document verification failed. Please re-upload clear front & back photos.';
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { user },
+      status === 'verified'
+        ? `KYC for ${user.username} approved! User awarded Verified Trader badge.`
+        : `KYC for ${user.username} marked as rejected.`
+    )
   );
 });

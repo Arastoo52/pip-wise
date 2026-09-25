@@ -131,6 +131,23 @@ export const adminService = {
   async createTestimonial(data) {
     return await apiClient.post('/admin/testimonials', data);
   },
+
+  /**
+   * Fetch all user KYC verification submissions
+   */
+  async getKycSubmissions(search = '', status = '') {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    return await apiClient.get(`/admin/kyc?${params.toString()}`);
+  },
+
+  /**
+   * Approve or reject a user KYC verification submission
+   */
+  async verifyUserKyc(id, status, reason = '') {
+    return await apiClient.patch(`/admin/kyc/${id}/status`, { status, reason });
+  },
 };
 
 export default adminService;

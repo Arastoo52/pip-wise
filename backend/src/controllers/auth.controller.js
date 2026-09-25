@@ -483,3 +483,84 @@ export const logout = asyncHandler(async (req, res) => {
     .clearCookie('accessToken', COOKIE_OPTIONS)
     .json(new ApiResponse(200, null, AUTH_MESSAGES.LOGOUT_SUCCESS));
 });
+
+/**
+ * @desc    Submit Aadhaar KYC verification details
+ * @route   POST /api/v1/auth/kyc/submit
+ * @access  Private (Authenticated User)
+ */
+export const submitKyc = asyncHandler(async (req, res) => {
+  const {
+    fullName,
+    dob,
+    phone,
+    address,
+    aadhaarNumber,
+    aadhaarFrontImage,
+    aadhaarBackImage,
+  } = req.body;
+
+  if (!fullName || !aadhaarNumber) {
+    throw new ApiError(400, 'Full Legal Name and Aadhaar Number are required for KYC.');
+  }
+
+  const cleanAadhaar = aadhaarNumber.replace(/\s+/g, '');
+  if (!/^\d{12}$/.test(cleanAadhaar)) {
+    throw new ApiError(400, 'Aadhaar Number must be a valid 12-digit number.');
+  }
+
+  const user = await User.findById(req.user._id).select('-password');
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  user.kycStatus = 'pending';
+  user.kycData = {
+    fullName: fullName.trim(),
+    dob: dob || '',
+    phone: phone || '',
+    address: address || '',
+    aadhaarNumber: cleanAadhaar,
+    aadhaarFrontImage: aadhaarFrontImage || '',
+    aadhaarBackImage: aadhaarBackImage || '',
+    submittedAt: new Date(),
+    verifiedAt: null,
+    rejectionReason: '',
+  };
+
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { user },
+      'KYC documents submitted successfully! PipWise compliance team will review your application.'
+    )
+  );
+});
+
+/**
+ * @desc    Get user current KYC status
+ * @route   GET /api/v1/auth/kyc/status
+ * @access  Private
+ */
+export const getKycStatus = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select(
+    'kycStatus isKycVerified kycData username email role'
+  );
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        kycStatus: user.kycStatus,
+        isKycVerified: user.isKycVerified,
+        kycData: user.kycData,
+      },
+      'KYC status retrieved'
+    )
+  );
+});

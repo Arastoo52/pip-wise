@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Nav from '../features/shared/components/nav.jsx';
 import SeoHead from '../features/shared/components/SeoHead.jsx';
 import AuthModal from '../features/auth/components/AuthModal.jsx';
+import KycFloatingWidget from '../features/kyc/components/KycFloatingWidget.jsx';
 import useAuth from '../features/auth/hooks/useAuth.js';
 import ToastContainer from '../features/shared/components/toast/ToastContainer.jsx';
 import AppRoutes from './app.routes.jsx';
@@ -114,6 +115,7 @@ function App() {
         setHeroComplete={setHeroComplete}
         onHeroFinished={onHeroFinished}
       />
+      {!isAdminRoute && <KycFloatingWidget />}
       <AuthModal />
       <ToastContainer />
     </div>
