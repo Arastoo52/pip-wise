@@ -10,7 +10,8 @@ import {
   AlertTriangle,
   FileText,
   Trash2,
-  Eye,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 import { authService } from '../../auth/services/auth.service.js';
 import useAuth from '../../auth/hooks/useAuth.js';
@@ -56,13 +57,13 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
     setAadhaarNumber(formatted);
   };
 
-  // Convert uploaded image file to lightweight Base64 string with compression
+  // Convert uploaded image file to lightweight Base64 string with canvas compression
   const handleFileUpload = (e, setImage) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      toast.error('Invalid File', 'Please upload an image file (PNG, JPG, or WEBP).');
+      toast.error('Invalid File', 'Please upload a photo file (PNG, JPG, or WEBP).');
       return;
     }
 
@@ -72,13 +73,13 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 900;
-        const scaleSize = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
+        const scaleSize = Math.min(1, MAX_WIDTH / img.width);
+        canvas.width = img.width * scaleSize;
         canvas.height = img.height * scaleSize;
 
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.78);
         setImage(compressedBase64);
       };
       img.src = event.target.result;
@@ -106,7 +107,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
     }
 
     if (!consent) {
-      toast.error('Consent Required', 'Please accept the DPDP data verification consent.');
+      toast.error('Consent Required', 'Please accept the verification consent declaration.');
       return;
     }
 
@@ -150,58 +151,65 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         onClick={onClose}
       >
         <motion.div
           className="kyc-modal-card"
-          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          initial={{ opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          transition={{ duration: 0.2 }}
+          exit={{ opacity: 0, scale: 0.96, y: 16 }}
+          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
+          {/* Subtle Ambient Brand Glow */}
+          <div className="kyc-modal-ambient-glow" aria-hidden="true" />
+
+          {/* Modal Header */}
           <div className="kyc-modal-header">
             <div className="kyc-header-left">
               <div className="kyc-shield-halo">
-                <ShieldCheck size={24} />
+                <ShieldCheck size={22} strokeWidth={2.4} />
               </div>
               <div>
                 <h3 className="kyc-modal-title">Trader KYC Verification</h3>
                 <p className="kyc-modal-subtitle">
-                  Verify your account with Aadhaar to earn the official Verified Trader badge.
+                  Verify with Aadhaar to earn your official Verified Trader badge
                 </p>
               </div>
             </div>
-            <button className="kyc-close-btn" onClick={onClose}>
-              <X size={16} />
+            <button
+              className="kyc-close-btn"
+              onClick={onClose}
+              type="button"
+              aria-label="Close modal"
+            >
+              <X size={15} />
             </button>
           </div>
 
-          {/* Current Status Banner */}
+          {/* Status Banners */}
           {isVerified ? (
             <div className="kyc-status-banner verified">
-              <CheckCircle2 size={18} />
+              <CheckCircle2 size={16} strokeWidth={2.6} />
               <div>
-                <strong>Account Verified!</strong>
+                <strong>Account Fully Verified</strong>
                 <div>You hold the official PipWise Verified Trader badge.</div>
               </div>
             </div>
           ) : kycStatus === 'pending' ? (
             <div className="kyc-status-banner pending">
-              <Clock size={18} />
+              <Clock size={16} strokeWidth={2.6} />
               <div>
-                <strong>Verification in Progress (Under Review)</strong>
-                <div>
-                  Your Aadhaar card and identity details are currently being reviewed by PipWise compliance.
-                </div>
+                <strong>Under Compliance Review</strong>
+                <div>Your Aadhaar card and identity details are currently being inspected.</div>
               </div>
             </div>
           ) : kycStatus === 'rejected' ? (
             <div className="kyc-status-banner rejected">
-              <AlertTriangle size={18} />
+              <AlertTriangle size={16} strokeWidth={2.6} />
               <div>
-                <strong>Verification Rejected</strong>
+                <strong>Verification Needs Update</strong>
                 <div>
                   Reason: {user?.kycData?.rejectionReason || 'Document unreadable. Please upload clearer photos.'}
                 </div>
@@ -211,46 +219,68 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
 
           {/* Form */}
           <form className="kyc-form" onSubmit={handleSubmit}>
-            <div className="kyc-form-grid">
-              <div className="kyc-input-group">
-                <label className="kyc-label">Full Name (As on Aadhaar)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Syed Arastoo"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="kyc-input"
-                  disabled={isVerified}
-                />
+            {/* Section 1: Personal Details */}
+            <div className="kyc-section-block">
+              <div className="kyc-section-title">1. Legal Personal Details</div>
+              
+              <div className="kyc-form-grid">
+                <div className="kyc-input-group">
+                  <label className="kyc-label">Full Name (As on Aadhaar)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Syed Arastoo"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="kyc-input"
+                    disabled={isVerified}
+                  />
+                </div>
+
+                <div className="kyc-input-group">
+                  <label className="kyc-label">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="kyc-input"
+                    disabled={isVerified}
+                  />
+                </div>
               </div>
 
-              <div className="kyc-input-group">
-                <label className="kyc-label">Date of Birth</label>
-                <input
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="kyc-input"
-                  disabled={isVerified}
-                />
+              <div className="kyc-form-grid" style={{ marginTop: '12px' }}>
+                <div className="kyc-input-group">
+                  <label className="kyc-label">Phone Number</label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="kyc-input"
+                    disabled={isVerified}
+                  />
+                </div>
+
+                <div className="kyc-input-group">
+                  <label className="kyc-label">Residential Address</label>
+                  <input
+                    type="text"
+                    placeholder="City, State, PIN code"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="kyc-input"
+                    disabled={isVerified}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="kyc-form-grid">
-              <div className="kyc-input-group">
-                <label className="kyc-label">Mobile Number</label>
-                <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="kyc-input"
-                  disabled={isVerified}
-                />
-              </div>
+            {/* Section 2: Aadhaar Card & Document Upload */}
+            <div className="kyc-section-block">
+              <div className="kyc-section-title">2. Aadhaar Document Details</div>
 
-              <div className="kyc-input-group">
+              <div className="kyc-input-group" style={{ marginBottom: '14px' }}>
                 <label className="kyc-label">12-Digit Aadhaar Number</label>
                 <input
                   type="text"
@@ -259,42 +289,29 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                   placeholder="XXXX XXXX XXXX"
                   value={aadhaarNumber}
                   onChange={handleAadhaarChange}
-                  className="kyc-input"
-                  style={{ letterSpacing: '0.08em', fontWeight: 'bold' }}
+                  className="kyc-input kyc-aadhaar-input"
                   disabled={isVerified}
                 />
               </div>
-            </div>
 
-            <div className="kyc-input-group">
-              <label className="kyc-label">Residential Address</label>
-              <input
-                type="text"
-                placeholder="Full address as per Aadhaar record"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="kyc-input"
-                disabled={isVerified}
-              />
-            </div>
-
-            {/* Aadhaar Image Uploads */}
-            <div className="kyc-upload-section">
-              <label className="kyc-label">Aadhaar Card Document Photos</label>
               <div className="kyc-upload-grid">
                 {/* Front Photo */}
-                <div>
+                <div className="kyc-upload-cell">
+                  <div className="kyc-upload-cell-label">
+                    <span>Aadhaar Front Side</span>
+                    {frontImage && <span className="kyc-checked-chip">✓ Uploaded</span>}
+                  </div>
                   <div
                     className={`kyc-dropzone ${frontImage ? 'has-file' : ''}`}
                     onClick={() => !isVerified && document.getElementById('aadhaar-front-input').click()}
                   >
                     {frontImage ? (
-                      <>
+                      <div className="kyc-preview-container">
                         <img src={frontImage} alt="Aadhaar Front" className="kyc-preview-img" />
                         {!isVerified && (
                           <button
                             type="button"
-                            className="kyc-remove-img-btn"
+                            className="kyc-change-img-btn"
                             onClick={(e) => {
                               e.stopPropagation();
                               setFrontImage('');
@@ -303,13 +320,13 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                             <Trash2 size={11} /> Change
                           </button>
                         )}
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <Upload size={22} className="kyc-dropzone-icon" />
-                        <p className="kyc-dropzone-text">Upload Front Side</p>
+                      <div className="kyc-dropzone-empty">
+                        <Upload size={18} className="kyc-dropzone-icon" />
+                        <span className="kyc-dropzone-text">Upload Front Side</span>
                         <span className="kyc-dropzone-sub">PNG, JPG up to 5MB</span>
-                      </>
+                      </div>
                     )}
                   </div>
                   <input
@@ -323,18 +340,22 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                 </div>
 
                 {/* Back Photo */}
-                <div>
+                <div className="kyc-upload-cell">
+                  <div className="kyc-upload-cell-label">
+                    <span>Aadhaar Back Side (Optional)</span>
+                    {backImage && <span className="kyc-checked-chip">✓ Uploaded</span>}
+                  </div>
                   <div
                     className={`kyc-dropzone ${backImage ? 'has-file' : ''}`}
                     onClick={() => !isVerified && document.getElementById('aadhaar-back-input').click()}
                   >
                     {backImage ? (
-                      <>
+                      <div className="kyc-preview-container">
                         <img src={backImage} alt="Aadhaar Back" className="kyc-preview-img" />
                         {!isVerified && (
                           <button
                             type="button"
-                            className="kyc-remove-img-btn"
+                            className="kyc-change-img-btn"
                             onClick={(e) => {
                               e.stopPropagation();
                               setBackImage('');
@@ -343,13 +364,13 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                             <Trash2 size={11} /> Change
                           </button>
                         )}
-                      </>
+                      </div>
                     ) : (
-                      <>
-                        <Upload size={22} className="kyc-dropzone-icon" />
-                        <p className="kyc-dropzone-text">Upload Back Side (Optional)</p>
+                      <div className="kyc-dropzone-empty">
+                        <Upload size={18} className="kyc-dropzone-icon" />
+                        <span className="kyc-dropzone-text">Upload Back Side</span>
                         <span className="kyc-dropzone-sub">Address proof section</span>
-                      </>
+                      </div>
                     )}
                   </div>
                   <input
@@ -372,31 +393,59 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
                 disabled={isVerified}
+                className="kyc-checkbox"
               />
               <label htmlFor="kyc-consent-checkbox" className="kyc-consent-text">
-                I hereby declare that the Aadhaar details and document copies provided belong to me and are genuine.
-                I consent to PipWise using this information exclusively for identity verification in accordance with
-                the DPDP Act &amp; Privacy Policy.
+                I hereby declare that the Aadhaar details and document copies provided belong to me and are authentic.
+                I consent to PipWise using this information exclusively for identity verification.
               </label>
             </div>
 
-            {/* Action Button */}
-            {!isVerified && (
-              <button
-                type="submit"
-                className="kyc-submit-btn"
-                disabled={submitting}
-              >
-                {submitting ? (
-                  <>Verifying &amp; Submitting...</>
-                ) : kycStatus === 'rejected' ? (
-                  <>Re-Submit KYC for Verification</>
-                ) : kycStatus === 'pending' ? (
-                  <>Update &amp; Resubmit KYC Documents</>
-                ) : (
-                  <>Submit KYC for Verification →</>
-                )}
-              </button>
+            {/* Action Buttons */}
+            {!isVerified ? (
+              <div className="kyc-actions-row">
+                <button
+                  type="button"
+                  className="kyc-cancel-btn"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="kyc-submit-btn"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <span>Submitting Details...</span>
+                  ) : kycStatus === 'rejected' ? (
+                    <>
+                      <span>Re-Submit KYC</span>
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    </>
+                  ) : kycStatus === 'pending' ? (
+                    <>
+                      <span>Update &amp; Re-Submit</span>
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit for Verification</span>
+                      <ArrowRight size={14} strokeWidth={2.5} />
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="kyc-actions-row">
+                <button
+                  type="button"
+                  className="kyc-submit-btn"
+                  onClick={onClose}
+                >
+                  Close Window
+                </button>
+              </div>
             )}
           </form>
         </motion.div>
