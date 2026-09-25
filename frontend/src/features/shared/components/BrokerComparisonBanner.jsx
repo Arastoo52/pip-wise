@@ -1,12 +1,22 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MacbookScrollChoreography from '../../../macbook/MacbookScrollChoreography';
 
 const BrokerComparisonBanner = ({ onStartComparing }) => {
   const bannerRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleCompareClick = (e) => {
+    if (typeof onStartComparing === 'function') {
+      onStartComparing(e);
+    } else {
+      navigate('/compare');
+    }
+  };
 
   return (
-    <section ref={bannerRef} className="broker-comp-section" aria-label="Compare Brokers Side by Side">
+    <section ref={bannerRef} id="comparisons" className="broker-comp-section" aria-label="Compare Brokers Side by Side">
       <div className="broker-comp-container">
         <motion.div
           className="broker-comp-card"
@@ -175,17 +185,11 @@ const BrokerComparisonBanner = ({ onStartComparing }) => {
               Analyze fees, trading conditions, platforms and more to find your perfect match.
             </motion.p>
 
-            <motion.button
+            <button
               type="button"
               className="comp-cta-btn"
-              onClick={onStartComparing}
+              onClick={handleCompareClick}
               aria-label="Start Comparing Brokers"
-              initial={{ opacity: 0, y: 16, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ scale: 1.04, y: -2 }}
-              whileTap={{ scale: 0.97 }}
             >
               <span>Start Comparing</span>
               <svg
@@ -203,7 +207,7 @@ const BrokerComparisonBanner = ({ onStartComparing }) => {
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
               </svg>
-            </motion.button>
+            </button>
           </motion.div>
 
           {/* Right Column: 3D Apple MacBook Pro with Scroll Choreography */}
@@ -216,4 +220,4 @@ const BrokerComparisonBanner = ({ onStartComparing }) => {
   );
 };
 
-export default BrokerComparisonBanner;
+export default React.memo(BrokerComparisonBanner);

@@ -1,5 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import {
+  LogOut,
+  Building2,
+  Star,
+  SlidersHorizontal,
+  Briefcase,
+  Info,
+  ChevronRight,
+  LogIn,
+  ShieldCheck,
+  Sun,
+  Moon,
+  LayoutDashboard,
+} from 'lucide-react';
+import useAuth from '../../auth/hooks/useAuth.js';
+import { useToast } from './toast/ToastContext.jsx';
 
 const bouncySpring = {
   type: 'spring',
@@ -8,7 +25,15 @@ const bouncySpring = {
   mass: 0.75,
 };
 
-const DockNavLink = ({ link, mouseX }) => {
+const NAV_LINKS = [
+  { label: 'Brokers', href: '/brokers', Icon: Building2 },
+  { label: 'Reviews', href: '/#reviews', Icon: Star },
+  { label: 'Comparisons', href: '/compare', Icon: SlidersHorizontal },
+  { label: 'Join as Broker', href: '/join-broker', Icon: Briefcase, badge: 'Partner' },
+  { label: 'About', href: '/#about', Icon: Info },
+];
+
+const DockNavLink = React.memo(({ link, mouseX }) => {
   const ref = useRef(null);
 
   const distance = useTransform(mouseX, (val) => {
@@ -44,28 +69,57 @@ const DockNavLink = ({ link, mouseX }) => {
         transformOrigin: 'center center',
       }}
     >
-      <a href={link.href}>
-        <span>{link.label}</span>
-        <svg
-          className="nav-chevron-icon"
-          width="9"
-          height="9"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </a>
+      {link.href.startsWith('/') && !link.href.startsWith('/#') ? (
+        <Link to={link.href}>
+          <span>{link.label}</span>
+          <svg
+            className="nav-chevron-icon"
+            width="9"
+            height="9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </Link>
+      ) : (
+        <a href={link.href}>
+          <span>{link.label}</span>
+          <svg
+            className="nav-chevron-icon"
+            width="9"
+            height="9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </a>
+      )}
     </motion.li>
   );
-};
+});
 
 const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
+  const { user, isAuthenticated, openLogin, openRegister, logout } = useAuth();
+  const toast = useToast();
+
+  const handleLogout = async () => {
+    const currentUsername = user?.username;
+    await logout();
+    toast.info('Logged Out', currentUsername ? `See you next session, ${currentUsername}!` : 'You have been logged out.');
+  };
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -126,25 +180,30 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
   };
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = Math.max(0, window.scrollY);
-      const diff = currentScrollY - lastScrollYRef.current;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = Math.max(0, window.scrollY);
 
-      // At top of page: always full size
-      if (currentScrollY <= 30) {
-        setIsScrolled(false);
-      } else if (diff > 4) {
-        // Scrolling DOWN -> shrink smoothly
-        setIsScrolled(true);
-      } else if (diff < -4) {
-        // Scrolling UP (even slightly!) -> expand back to full original shape
-        setIsScrolled(false);
+          // Hysteresis deadband: shrink smoothly past 55px, expand back only at top (< 20px)
+          setIsScrolled((prev) => {
+            if (!prev && currentScrollY > 55) {
+              return true;
+            }
+            if (prev && currentScrollY < 20) {
+              return false;
+            }
+            return prev;
+          });
+
+          ticking = false;
+        });
+        ticking = true;
       }
-
-      lastScrollYRef.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -157,17 +216,12 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
     setWaveKey((prev) => prev + 1);
   };
 
-  const navLinks = [
-    { label: 'Brokers', href: '#brokers' },
-    { label: 'Reviews', href: '#reviews' },
-    { label: 'Comparisons', href: '#comparisons' },
-    { label: 'About', href: '#about' },
-  ];
+  const navLinks = NAV_LINKS;
 
-  const baseMaxWidth = isScrolled ? 835 : 945;
-  const hoveredMaxWidth = isScrolled ? 895 : 1015;
-  const searchMaxWidth = isScrolled ? 990 : 1080;
-  const searchHoverMaxWidth = isScrolled ? 1030 : 1110;
+  const baseMaxWidth = isScrolled ? 910 : 1020;
+  const hoveredMaxWidth = isScrolled ? 970 : 1080;
+  const searchMaxWidth = isScrolled ? 1040 : 1140;
+  const searchHoverMaxWidth = isScrolled ? 1080 : 1180;
 
   const targetMaxWidth = searchOpen
     ? (isNavHovered ? searchHoverMaxWidth : searchMaxWidth)
@@ -188,9 +242,9 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
         animate={
           heroComplete
             ? {
-              clipPath: 'inset(0 0% 0 0% round 14px)',
+              clipPath: 'none',
               opacity: 1,
-              y: 0,
+              y: isScrolled ? -6 : 0,
               maxWidth: targetMaxWidth,
             }
             : {
@@ -202,17 +256,18 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
         }
         transition={{
           maxWidth: {
-            type: 'spring',
-            stiffness: 240,
-            damping: 24,
-            mass: 0.6,
+            duration: 0.32,
+            ease: [0.16, 1, 0.3, 1],
+          },
+          y: {
+            duration: 0.32,
+            ease: [0.16, 1, 0.3, 1],
           },
           clipPath: {
             duration: 0.85,
             ease: [0.16, 1, 0.3, 1],
           },
           opacity: { duration: 0.5 },
-          y: { duration: 0.5 },
         }}
         onAnimationComplete={() => {
           if (heroComplete && navRef.current) {
@@ -228,21 +283,24 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
         <div className="pipwise-nav-shiny-border-line" aria-hidden="true" />
 
         {/* PipWise Custom Brand: 3 Candlestick bars + PipWise Text */}
-        <motion.a
-          href="/"
-          className="pipwise-logo-brand"
-          aria-label="PipWise Home"
+        <motion.div
           initial={{ opacity: 0, x: -16 }}
           animate={heroComplete ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
           transition={{ duration: 0.55, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="pipwise-candles" aria-hidden="true">
-            <span className="candle-bar candle-bar-1" />
-            <span className="candle-bar candle-bar-2" />
-            <span className="candle-bar candle-bar-3" />
-          </div>
-          <span className="pipwise-logo-text">PipWise</span>
-        </motion.a>
+          <Link
+            to="/"
+            className="pipwise-logo-brand"
+            aria-label="PipWise Home"
+          >
+            <div className="pipwise-candles" aria-hidden="true">
+              <span className="candle-bar candle-bar-1" />
+              <span className="candle-bar candle-bar-2" />
+              <span className="candle-bar candle-bar-3" />
+            </div>
+            <span className="pipwise-logo-text">PipWise</span>
+          </Link>
+        </motion.div>
 
         {/* Center Nav Links with macOS Dock Magnification using Framer Motion */}
         <motion.ul
@@ -271,7 +329,7 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             <motion.div
               className={`pipwise-inline-search-pill ${searchOpen ? 'is-open' : 'is-closed'}`}
               animate={{
-                width: searchOpen ? 256 : 36,
+                width: searchOpen ? (typeof window !== 'undefined' && window.innerWidth < 480 ? Math.min(window.innerWidth - 120, 230) : 256) : 36,
               }}
               transition={bouncySpring}
               whileTap={!searchOpen ? { scale: 0.92 } : undefined}
@@ -393,10 +451,10 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             </motion.div>
           </div>
 
-          {/* Theme Toggle Button */}
+          {/* Theme Toggle Button - Disappears completely on mobile when search is open so it NEVER pokes out */}
           <button
             type="button"
-            className="pipwise-icon-btn pipwise-theme-btn"
+            className={`pipwise-icon-btn pipwise-theme-btn ${searchOpen ? 'is-search-hidden' : ''}`}
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
@@ -430,25 +488,71 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             )}
           </button>
 
-          {/* Login Button: Dark rounded container with letter wave on click */}
-          <button
-            type="button"
-            className="pipwise-floating-login-btn"
-            onClick={triggerLoginWave}
-            aria-label="Log in"
-          >
-            <span key={waveKey} className="login-wave-text">
-              {'Log in'.split('').map((char, index) => (
-                <span
-                  key={index}
-                  className={`wave-letter ${waveKey > 0 ? 'is-animating' : ''}`}
-                  style={{ animationDelay: `${index * 0.035}s` }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </span>
-          </button>
+          {/* Login or User Profile Badge */}
+          {!isAuthenticated ? (
+            <button
+              type="button"
+              className="pipwise-floating-login-btn"
+              onClick={() => {
+                triggerLoginWave();
+                openLogin();
+              }}
+              aria-label="Log in"
+            >
+              <span key={waveKey} className="login-wave-text">
+                {'Log in'.split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className={`wave-letter ${waveKey > 0 ? 'is-animating' : ''}`}
+                    style={{ animationDelay: `${index * 0.035}s` }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </span>
+            </button>
+          ) : user?.role === 'admin' ? (
+            <div className="pipwise-user-profile-badge is-admin" title="Open Admin Dashboard">
+              <Link
+                to="/admin"
+                className="user-badge-name admin-dashboard-text-link"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  color: '#ffffff',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                }}
+                title="Go to Admin Dashboard"
+              >
+                <LayoutDashboard size={13} color="#818cf8" />
+                <span>Dashboard</span>
+              </Link>
+              <button
+                type="button"
+                className="user-logout-btn"
+                onClick={handleLogout}
+                title="Log out"
+                aria-label="Log out"
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
+          ) : (
+            <div className="pipwise-user-profile-badge" title={user?.username || 'Trader'}>
+              <span className="user-badge-name">{user?.username || 'Trader'}</span>
+              <button
+                type="button"
+                className="user-logout-btn"
+                onClick={handleLogout}
+                title="Log out"
+                aria-label="Log out"
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
+          )}
 
           {/* Mobile Menu Toggle Button */}
           <button
@@ -476,43 +580,159 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
       </motion.nav>
 
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="pipwise-floating-mobile-menu">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="mobile-nav-link"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <div className="mobile-nav-btns">
-            <button
-              type="button"
-              className="pipwise-floating-login-btn"
-              style={{ width: '100%' }}
-              onClick={triggerLoginWave}
-            >
-              <span key={`mobile-${waveKey}`} className="login-wave-text">
-                {'Log in'.split('').map((char, index) => (
-                  <span
-                    key={index}
-                    className={`wave-letter ${waveKey > 0 ? 'is-animating' : ''}`}
-                    style={{ animationDelay: `${index * 0.035}s` }}
+      {/* Premium Mobile Navigation Drawer with Auth & Theme Switcher */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            className="pipwise-floating-mobile-menu"
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="mobile-menu-links-list">
+              {navLinks.map((link) => {
+                const IconComponent = link.Icon;
+                const isExternal = link.href.startsWith('/#');
+
+                const content = (
+                  <>
+                    <div className="mobile-link-left">
+                      {IconComponent && <IconComponent size={17} className="mobile-link-icon" />}
+                      <span className="mobile-link-text">{link.label}</span>
+                      {link.badge && <span className="mobile-link-badge">{link.badge}</span>}
+                    </div>
+                    <ChevronRight size={14} className="mobile-link-chevron" />
+                  </>
+                );
+
+                return isExternal ? (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    className="mobile-nav-link"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    {char === ' ' ? '\u00A0' : char}
-                  </span>
-                ))}
-              </span>
-            </button>
-          </div>
-        </div>
-      )}
+                    {content}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="mobile-nav-link"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {content}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="mobile-menu-divider" />
+
+            {/* Auth Section in Mobile Menu */}
+            <div className="mobile-nav-auth-section">
+              {!isAuthenticated ? (
+                <div className="mobile-auth-guest-box">
+                  <button
+                    type="button"
+                    className="mobile-menu-primary-login-btn"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openLogin();
+                    }}
+                  >
+                    <LogIn size={15} />
+                    <span>Log In to PipWise</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="mobile-menu-secondary-register-btn"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      openRegister();
+                    }}
+                  >
+                    <span>New Trader? <strong>Create Account</strong></span>
+                  </button>
+                </div>
+              ) : (
+                <div className="mobile-auth-user-card">
+                  <div className="mobile-user-info">
+                    <div className="mobile-user-avatar">
+                      {(user?.username || user?.name || 'T')[0].toUpperCase()}
+                    </div>
+                    <div className="mobile-user-text">
+                      {user?.role === 'admin' ? (
+                        <Link
+                          to="/admin"
+                          onClick={() => setMobileMenuOpen(false)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            color: '#ffffff',
+                            textDecoration: 'none',
+                            fontWeight: 700,
+                            fontSize: '0.92rem'
+                          }}
+                        >
+                          <LayoutDashboard size={13} color="#818cf8" />
+                          <span>Dashboard</span>
+                        </Link>
+                      ) : (
+                        <span className="mobile-user-name">{user?.username || user?.name || 'Trader'}</span>
+                      )}
+                      <span className="mobile-user-role">
+                        <ShieldCheck size={11} /> {user?.role === 'admin' ? 'Administrator' : 'Verified Trader'}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="mobile-user-logout-btn"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                    title="Log out"
+                  >
+                    <LogOut size={14} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="mobile-menu-divider" />
+
+            {/* Quick Theme Switcher Row */}
+            <div className="mobile-menu-footer-row">
+              <span className="mobile-theme-label">Appearance</span>
+              <button
+                type="button"
+                className="mobile-theme-toggle-chip"
+                onClick={toggleTheme}
+                aria-label="Toggle Theme"
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <Sun size={13} />
+                    <span>Light Mode</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon size={13} />
+                    <span>Dark Mode</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
 
-export default Nav;
+export default React.memo(Nav);

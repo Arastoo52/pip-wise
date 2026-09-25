@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './InteractiveRobot.css';
 
-export default function InteractiveRobot({
+function InteractiveRobot({
   activeField = null,
   formStatus = 'idle',
   username = '',
@@ -755,3 +755,5 @@ export default function InteractiveRobot({
     </div>
   );
 }
+
+export default React.memo(InteractiveRobot);

@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER commit secrets or env files)
+.env
+.env*
+*.env*
+
+# Logs
+logs/
+*.log
+npm-debug.log*

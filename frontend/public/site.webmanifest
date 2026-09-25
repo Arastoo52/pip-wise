@@ -1,0 +1,21 @@
+{
+  "name": "PipWise by TradeSafe Brokers — Verified Forex Broker Reviews & Comparison",
+  "short_name": "PipWise",
+  "description": "Compare regulated Forex & CFD brokers side-by-side. Verify tier-1 regulation, live ECN spreads, commissions, and real OTP-verified trader reviews.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0d12",
+  "theme_color": "#0b0d12",
+  "categories": ["finance", "business", "productivity"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

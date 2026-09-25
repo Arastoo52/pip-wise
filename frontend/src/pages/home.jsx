@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import InteractiveDotGrid from '../features/shared/components/InteractiveDotGrid';
 import TrustedBrokersMarquee from '../features/shared/components/TrustedBrokersMarquee';
@@ -8,60 +9,131 @@ import BrokerComparisonBanner from '../features/shared/components/BrokerComparis
 import Testimonials from '../features/shared/components/Testimonials';
 import Footer from '../features/shared/components/Footer';
 
-// Geometric Frame Circuit Lines Component
-const GeometricFrameLines = () => {
-  return (
-    <div className="pipwise-circuit-bg-container" aria-hidden="true">
-      <svg
-        className="pipwise-hero-circuit-bg"
-        width="100%"
-        height="100%"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <pattern id="pipwiseGridPattern" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke="var(--circuit-line-dim)" strokeWidth="0.75" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#pipwiseGridPattern)" opacity="0.35" />
-
-        {/* Outer Frame Lines */}
-        <line x1="28" y1="20" x2="98%" y2="20" className="circuit-edge-line" />
-        <line x1="28" y1="calc(100% - 20px)" x2="98%" y2="calc(100% - 20px)" className="circuit-edge-line" />
-        <line x1="28" y1="20" x2="28" y2="calc(100% - 20px)" className="circuit-edge-line" />
-        <line x1="98%" y1="20" x2="98%" y2="calc(100% - 20px)" className="circuit-edge-line" />
-
-        {/* Top-Left Corner Bracket */}
-        <path d="M 20 38 L 20 20 L 38 20" className="circuit-chevron-line" />
-        {/* Top-Right Corner Bracket */}
-        <path d="M calc(98% - 18px) 20 L 98% 20 L 98% 38" className="circuit-chevron-line" />
-        {/* Bottom-Left Corner Bracket */}
-        <path d="M 20 calc(100% - 38px) L 20 calc(100% - 20px) L 38 calc(100% - 20px)" className="circuit-chevron-line" />
-        {/* Bottom-Right Corner Bracket */}
-        <path d="M calc(98% - 18px) calc(100% - 20px) L 98% calc(100% - 20px) L 98% calc(100% - 38px)" className="circuit-chevron-line" />
-      </svg>
-    </div>
-  );
-};
-
 const titleLines = [
   { words: ['Find', 'the', 'Best'] },
   { words: ['Forex', 'Broker'] },
-  { words: ['for', 'a', 'Smarter', 'Tomorrow'], accentIndexStart: 2 },
+  { words: ['for', 'a', 'Smarter'], accentIndexStart: 2 },
+  { words: ['Tomorrow'], accentIndexStart: 0 },
 ];
 
 const descText = 'Unbiased broker reviews, real spread monitoring, and tier-1 regulatory verification to safeguard your trading capital.';
+
+// Reusable Transparency Card Component (used in desktop right column and mobile hero)
+const TransparencyCard = React.memo(() => (
+  <div className="transparency-card">
+    <h3 className="transparency-title">
+      100% Transparent
+      <br />
+      Review System
+    </h3>
+    <div className="green-accent-line" />
+
+    <div className="transparency-points">
+      <div className="transparency-point">
+        <svg
+          className="transparency-check-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--brand-green)"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span>Zero Paid Broker Rankings</span>
+      </div>
+      <div className="transparency-point">
+        <svg
+          className="transparency-check-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--brand-green)"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span>Verified Withdrawal Proof</span>
+      </div>
+      <div className="transparency-point">
+        <svg
+          className="transparency-check-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--brand-green)"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span>Tier-1 Regulation Checked</span>
+      </div>
+      <div className="transparency-point">
+        <svg
+          className="transparency-check-svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--brand-green)"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span>Live Execution Spreads</span>
+      </div>
+    </div>
+
+    {/* Social Proof Avatars */}
+    <div className="social-proof-section">
+      <div className="avatar-stack-group">
+        <img
+          src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+          alt="Trader"
+          className="trader-avatar"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+          alt="Trader"
+          className="trader-avatar"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+          alt="Trader"
+          className="trader-avatar"
+        />
+        <span className="avatar-badge-count">+45k</span>
+      </div>
+      <span className="social-proof-text">Traders joined this month</span>
+    </div>
+  </div>
+));
 
 const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
   const [complete, setComplete] = useState(heroComplete);
 
   useEffect(() => {
+    if (heroComplete) {
+      setComplete(true);
+      return;
+    }
     const timer = setTimeout(() => {
       setComplete(true);
       if (onTitleComplete) onTitleComplete();
     }, 900);
     return () => clearTimeout(timer);
-  }, [onTitleComplete]);
+  }, [heroComplete, onTitleComplete]);
 
   let runningChar = 0;
   let runningDescChar = 0;
@@ -69,7 +141,7 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
   return (
     <main className="pipwise-home-page">
       {/* Hero Section */}
-      <section className="pipwise-hero">
+      <section className={`pipwise-hero ${heroComplete ? 'no-entrance-anim' : ''}`}>
         {/* Radial Ambient Glow */}
         <div className="pipwise-hero-bg-glow" aria-hidden="true" />
 
@@ -78,13 +150,10 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
           <InteractiveDotGrid theme={theme} />
         </div>
 
-        {/* Sheryians-Style Geometric Frame Lines Layer */}
-        <GeometricFrameLines />
-
         {/* Main Content Container */}
         <div className="pipwise-hero-container">
           <div className="pipwise-hero-grid">
-            {/* Left Column: Headline, Description, CTAs, Stats */}
+            {/* Left Column: Headline, Description, CTAs, Mobile Transparency Card, Stats */}
             <div className="pipwise-hero-left">
               <span className="pipwise-hero-eyebrow">VERIFIED BROKER DIRECTORY</span>
 
@@ -95,6 +164,13 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
                       const isAccent = line.accentIndexStart !== undefined && wIdx >= line.accentIndexStart;
                       const letters = word.split('').map((char, cIdx) => {
                         const idx = runningChar++;
+                        if (heroComplete) {
+                          return (
+                            <span key={cIdx} style={{ opacity: 1, display: 'inline-block' }}>
+                              {char}
+                            </span>
+                          );
+                        }
                         return (
                           <span
                             key={cIdx}
@@ -120,36 +196,44 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
               </h1>
 
               <p className="pipwise-hero-desc">
-                {descText.split(' ').map((word, wIdx) => (
-                  <span key={wIdx} className="desc-wave-word">
-                    {word.split('').map((char, cIdx) => {
-                      const idx = runningDescChar++;
-                      return (
-                        <span
-                          key={cIdx}
-                          className="desc-wave-letter"
-                          style={{
-                            opacity: complete ? undefined : 0,
-                            animationDelay: `${idx * 0.012}s`,
-                          }}
-                        >
-                          {char}
-                        </span>
-                      );
-                    })}
-                  </span>
-                ))}
+                {heroComplete ? (
+                  <span>{descText}</span>
+                ) : (
+                  descText.split(' ').map((word, wIdx) => (
+                    <span key={wIdx} className="desc-wave-word">
+                      {word.split('').map((char, cIdx) => {
+                        const idx = runningDescChar++;
+                        return (
+                          <span
+                            key={cIdx}
+                            className="desc-wave-letter"
+                            style={{
+                              opacity: complete ? undefined : 0,
+                              animationDelay: `${idx * 0.012}s`,
+                            }}
+                          >
+                            {char}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  ))
+                )}
               </p>
 
               {/* Action Buttons */}
               <div className="pipwise-cta-group">
-                <button className="pipwise-btn-primary">
+                <Link to="/brokers" className="pipwise-btn-primary">
                   <span className="login-wave-text">
-                    {'Explore Brokers'.split('').map((c, i) => (
-                      <span key={i} className="wave-letter" style={{ animationDelay: `${i * 0.02}s` }}>
-                        {c === ' ' ? '\u00A0' : c}
-                      </span>
-                    ))}
+                    {heroComplete ? (
+                      <span>Explore Brokers</span>
+                    ) : (
+                      'Explore Brokers'.split('').map((c, i) => (
+                        <span key={i} className="wave-letter" style={{ animationDelay: `${i * 0.02}s` }}>
+                          {c === ' ' ? '\u00A0' : c}
+                        </span>
+                      ))
+                    )}
                   </span>
                   <svg
                     className="btn-arrow-icon"
@@ -165,67 +249,88 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
                     <line x1="5" y1="12" x2="19" y2="12" />
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
-                </button>
+                </Link>
 
-                <button className="pipwise-btn-secondary">
+                <Link to="/compare" className="pipwise-btn-secondary">
                   <span className="login-wave-text">
-                    {'Compare All'.split('').map((c, i) => (
-                      <span key={i} className="wave-letter" style={{ animationDelay: `${i * 0.02}s` }}>
-                        {c === ' ' ? '\u00A0' : c}
-                      </span>
-                    ))}
+                    {heroComplete ? (
+                      <span>Compare All</span>
+                    ) : (
+                      'Compare All'.split('').map((c, i) => (
+                        <span key={i} className="wave-letter" style={{ animationDelay: `${i * 0.02}s` }}>
+                          {c === ' ' ? '\u00A0' : c}
+                        </span>
+                      ))
+                    )}
                   </span>
-                </button>
+                </Link>
+              </div>
+
+              {/* Mobile Transparency Card (Rendered here right below CTAs on mobile) */}
+              <div className="pipwise-hero-mobile-transparency">
+                <TransparencyCard />
               </div>
 
               {/* Stats Row with Transparent Icon Backgrounds */}
               <div className="pipwise-stats-row">
                 <div className="stat-item">
                   <div className="stat-icon-wrapper">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                   </div>
                   <div className="stat-content">
                     <span className="stat-value">450+</span>
-                    <span className="stat-label">Brokers Reviewed</span>
+                    <span className="stat-label">
+                      <span>Brokers</span>
+                      <span>Reviewed</span>
+                    </span>
                   </div>
                 </div>
 
                 <div className="stat-item">
                   <div className="stat-icon-wrapper">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                   </div>
                   <div className="stat-content">
                     <span className="stat-value">100%</span>
-                    <span className="stat-label">Free & Unbiased</span>
+                    <span className="stat-label">
+                      <span>Free &amp;</span>
+                      <span>Unbiased</span>
+                    </span>
                   </div>
                 </div>
 
                 <div className="stat-item">
                   <div className="stat-icon-wrapper">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
                   </div>
                   <div className="stat-content">
                     <span className="stat-value">4.9/5</span>
-                    <span className="stat-label">User Rating</span>
+                    <span className="stat-label">
+                      <span>User</span>
+                      <span>Rating</span>
+                    </span>
                   </div>
                 </div>
 
                 <div className="stat-item">
                   <div className="stat-icon-wrapper">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
                     </svg>
                   </div>
                   <div className="stat-content">
                     <span className="stat-value">24/7</span>
-                    <span className="stat-label">Live Spreads</span>
+                    <span className="stat-label">
+                      <span>Live</span>
+                      <span>Spreads</span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -240,7 +345,7 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
                 <img
                   src="/forex_globe_web_300kb.webp"
                   alt="Interactive Forex Globe"
-                  className="globe-image"
+                  className={`globe-image ${heroComplete ? 'no-entrance' : ''}`}
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
@@ -330,51 +435,8 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
 
             {/* Right Column: Transparency Card & Social Proof */}
             <div className="pipwise-hero-right">
-              <div className="transparency-card">
-                <h3 className="transparency-title">100% Transparent Review System</h3>
-                <div className="green-accent-line" />
-
-                <div className="transparency-points">
-                  <div className="transparency-point">
-                    <span style={{ color: 'var(--brand-green)', fontWeight: 700 }}>✓</span>
-                    <span>Zero Paid Broker Rankings</span>
-                  </div>
-                  <div className="transparency-point">
-                    <span style={{ color: 'var(--brand-green)', fontWeight: 700 }}>✓</span>
-                    <span>Verified Withdrawal Proof</span>
-                  </div>
-                  <div className="transparency-point">
-                    <span style={{ color: 'var(--brand-green)', fontWeight: 700 }}>✓</span>
-                    <span>Tier-1 Regulation Checked</span>
-                  </div>
-                  <div className="transparency-point">
-                    <span style={{ color: 'var(--brand-green)', fontWeight: 700 }}>✓</span>
-                    <span>Live Execution Spreads</span>
-                  </div>
-                </div>
-
-                {/* Social Proof Avatars */}
-                <div className="social-proof-section">
-                  <div className="avatar-stack-group">
-                    <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                      alt="Trader"
-                      className="trader-avatar"
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                      alt="Trader"
-                      className="trader-avatar"
-                    />
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-                      alt="Trader"
-                      className="trader-avatar"
-                    />
-                    <span className="avatar-badge-count">+45k</span>
-                  </div>
-                  <span className="social-proof-text">Traders joined this month</span>
-                </div>
+              <div className="pipwise-hero-desktop-transparency">
+                <TransparencyCard />
               </div>
             </div>
           </div>
@@ -406,4 +468,4 @@ const Home = ({ theme = 'dark', heroComplete = false, onTitleComplete }) => {
   );
 };
 
-export default Home;
+export default React.memo(Home);

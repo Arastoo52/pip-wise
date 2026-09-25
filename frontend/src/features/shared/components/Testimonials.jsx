@@ -1,106 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Star, CheckCircle2, Heart } from 'lucide-react';
+import {
+  getSynchronousTestimonials,
+  fetchActiveTestimonials,
+} from '../../testimonials/services/testimonialStorage.js';
 
-const topRowReviews = [
-  {
-    name: 'Mohd Siraj',
-    role: 'Funded Scalper & Active Trader',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'PipWise made choosing a broker effortless. The raw spread comparison between IC Markets and Exness saved me over $400 a month in trading commissions. Indispensable tool!'
-  },
-  {
-    name: 'Dr. Mukti Prasad Dash',
-    role: 'Portfolio Manager & Swing Trader',
-    avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&auto=format&fit=crop&q=80',
-    rating: '4.9',
-    review: 'The regulatory license verification and overnight swap fee transparency on PipWise are incredible. It gives me complete confidence knowing my capital is with Tier-1 regulated brokers.'
-  },
-  {
-    name: 'Pradum Kumar',
-    role: 'Day Trader (EUR/USD, XAU/USD)',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    rating: '4.8',
-    review: 'I used to trade with an offshore broker suffering massive slippage. PipWise’s live execution speed benchmarks directed me to Pepperstone. Night and day difference!'
-  },
-  {
-    name: 'Ananya Deshmukh',
-    role: 'Algorithmic & EA Strategy Trader',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'Ultra-low MT5 VPS execution latency was non-negotiable for my algorithmic bots. PipWise’s latency testing data was 100% accurate. Saved me months of costly trial and error.'
-  },
-  {
-    name: 'Vikramaditya Sen',
-    role: 'Prop Desk Trading Lead',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    rating: '4.9',
-    review: 'Our trading desk cross-checks every broker with PipWise before allocating live funds. Timely withdrawal records, FCA/CySEC audit notes, and honest ratings make them our go-to.'
-  },
-  {
-    name: 'Sneha Roy',
-    role: 'Retail Forex Trader',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'Clean side-by-side comparison, real trader reviews, and zero deceptive marketing. Finding a broker with $10 minimum deposit and instant local deposits was smooth and hassle-free.'
-  }
-];
-
-const bottomRowReviews = [
-  {
-    name: 'Akash Warade',
-    role: 'High-Frequency FX Trader',
-    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80',
-    rating: '4.9',
-    review: 'Whenever someone asks about broker withdrawal speeds, PipWise is the first portal I send them. They test the exact metrics brokers usually hide. Pure respect for their team!'
-  },
-  {
-    name: 'Pragati Nayak',
-    role: 'Price Action Mentor & Trader',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'I advise every beginner in my trading mentorship group to first compare broker spreads on PipWise. Genuine transparency and safety save you from catastrophic blow-ups.'
-  },
-  {
-    name: 'Samarth Jain',
-    role: 'Forex Community Lead',
-    avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80',
-    rating: '4.8',
-    review: '100% transparent and reliable. Comparing spread costs during high-impact news like CPI and NFP gave me realistic expectations. Knowing your broker is safe brings true peace of mind.'
-  },
-  {
-    name: 'Ritu & Sanjay Joshi',
-    role: 'Private Wealth & Multi-Asset Investors',
-    avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'We evaluate multi-asset brokers with PipWise. The side-by-side view showing leverage limits, Tier-1 regulation (FCA, ASIC), and client fund segregation is brilliantly implemented.'
-  },
-  {
-    name: 'Karan Malhotra',
-    role: 'Macro & News Trader',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-    rating: '4.9',
-    review: 'During emergency volatility spikes, execution speed and slippage protection are everything. PipWise’s detailed broker breakdowns give you the honest, unedited truth.'
-  },
-  {
-    name: 'Meera Iyer',
-    role: 'Automated Strategy Specialist',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
-    rating: '5.0',
-    review: 'A genuinely honest review platform doing groundbreaking work. Their comprehensive broker fee calculator and raw spread analyses are unmatched anywhere in the industry.'
-  }
-];
-
-// Single Testimonial Card Component
-const TestimonialCard = ({ item }) => (
+// Single Testimonial Card Component (Memoized to prevent redundant card re-renders)
+const TestimonialCard = React.memo(({ item }) => (
   <div className="pw-testimonial-card">
     <div className="pw-testimonial-body">
       {/* Card Header: Avatar, Name & Role */}
       <div className="pw-testimonial-header">
         <div className="pw-testimonial-avatar-wrap">
           <img
-            src={item.avatar}
+            src={item.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'}
             alt={item.name}
             loading="lazy"
             className="pw-testimonial-avatar"
@@ -117,8 +31,8 @@ const TestimonialCard = ({ item }) => (
 
       {/* Star Rating */}
       <div className="pw-testimonial-rating-row">
-        <span className="pw-rating-score">{item.rating}</span>
-        <div className="pw-stars-cluster" aria-label={`${item.rating} out of 5 stars`}>
+        <span className="pw-rating-score">{item.rating || '5.0'}</span>
+        <div className="pw-stars-cluster" aria-label={`${item.rating || '5.0'} out of 5 stars`}>
           {[...Array(5)].map((_, i) => (
             <Star key={i} size={13} className="pw-star-icon" />
           ))}
@@ -139,9 +53,60 @@ const TestimonialCard = ({ item }) => (
       <span className="pw-supporter-tag">PipWise Community</span>
     </div>
   </div>
-);
+));
 
-const Testimonials = () => {
+const Testimonials = React.memo(() => {
+  // Synchronous initial load guarantees instant render with ZERO re-render flash
+  const [items, setItems] = useState(() => getSynchronousTestimonials());
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // Check remote backend in background; ONLY update if data actually changed
+    fetchActiveTestimonials().then((active) => {
+      if (!isMounted || !Array.isArray(active)) return;
+      const currentIds = itemsRef.current.map((t) => t._id || t.name).join(',');
+      const newIds = active.map((t) => t._id || t.name).join(',');
+      if (currentIds !== newIds) {
+        setItems(active);
+      }
+    });
+
+    // Real-time listener: instant synchronous update when admin deletes or resets
+    const handleUpdate = () => {
+      const fresh = getSynchronousTestimonials();
+      setItems(fresh);
+    };
+
+    window.addEventListener('pipwise_testimonials_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('pipwise_testimonials_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const topRowReviews = useMemo(() => {
+    const list = items.filter((t) => t.row === 'top');
+    if (list.length > 0) return list;
+    return items.slice(0, Math.ceil(items.length / 2));
+  }, [items]);
+
+  const bottomRowReviews = useMemo(() => {
+    const list = items.filter((t) => t.row === 'bottom');
+    if (list.length > 0) return list;
+    return items.slice(Math.ceil(items.length / 2));
+  }, [items]);
+
+  // If both rows are empty because admin deleted everything
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <section id="testimonials" className="pw-testimonials-section" aria-label="Trader Testimonials">
       {/* Header Content */}
@@ -196,35 +161,39 @@ const Testimonials = () => {
         <div className="pw-marquee-mask pw-mask-right" aria-hidden="true" />
 
         {/* Row 1: Leftward Marquee (Continuous Loop) */}
-        <div className="pw-marquee-row">
-          <div className="pw-marquee-track pw-track-left">
-            {topRowReviews.map((item, idx) => (
-              <TestimonialCard key={`top-1-${idx}`} item={item} />
-            ))}
+        {topRowReviews.length > 0 && (
+          <div className="pw-marquee-row">
+            <div className="pw-marquee-track pw-track-left">
+              {topRowReviews.map((item, idx) => (
+                <TestimonialCard key={`top-1-${item._id || item.name || idx}`} item={item} />
+              ))}
+            </div>
+            <div className="pw-marquee-track pw-track-left" aria-hidden="true">
+              {topRowReviews.map((item, idx) => (
+                <TestimonialCard key={`top-2-${item._id || item.name || idx}`} item={item} />
+              ))}
+            </div>
           </div>
-          <div className="pw-marquee-track pw-track-left" aria-hidden="true">
-            {topRowReviews.map((item, idx) => (
-              <TestimonialCard key={`top-2-${idx}`} item={item} />
-            ))}
-          </div>
-        </div>
+        )}
 
         {/* Row 2: Rightward Marquee (Continuous Loop) */}
-        <div className="pw-marquee-row">
-          <div className="pw-marquee-track pw-track-right">
-            {bottomRowReviews.map((item, idx) => (
-              <TestimonialCard key={`bot-1-${idx}`} item={item} />
-            ))}
+        {bottomRowReviews.length > 0 && (
+          <div className="pw-marquee-row">
+            <div className="pw-marquee-track pw-track-right">
+              {bottomRowReviews.map((item, idx) => (
+                <TestimonialCard key={`bot-1-${item._id || item.name || idx}`} item={item} />
+              ))}
+            </div>
+            <div className="pw-marquee-track pw-track-right" aria-hidden="true">
+              {bottomRowReviews.map((item, idx) => (
+                <TestimonialCard key={`bot-2-${item._id || item.name || idx}`} item={item} />
+              ))}
+            </div>
           </div>
-          <div className="pw-marquee-track pw-track-right" aria-hidden="true">
-            {bottomRowReviews.map((item, idx) => (
-              <TestimonialCard key={`bot-2-${idx}`} item={item} />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );
-};
+});
 
 export default Testimonials;

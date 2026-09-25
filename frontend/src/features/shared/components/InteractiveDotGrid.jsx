@@ -274,4 +274,4 @@ const InteractiveDotGrid = ({ theme = 'dark' }) => {
   );
 };
 
-export default InteractiveDotGrid;
+export default React.memo(InteractiveDotGrid);

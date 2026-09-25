@@ -1,4 +1,5 @@
 import React, { useState, memo } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronDown, Heart, Shield, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,7 +45,7 @@ const footerSections = [
     title: 'About & Partners',
     links: [
       { label: 'About Our Mission', href: '#about' },
-      { label: 'Join as Broker', href: '#join-broker', joinBroker: true },
+      { label: 'Join as Broker', href: '/join-broker', joinBroker: true },
       { label: 'How We Rate Brokers', href: '#about' },
       { label: 'Editorial Independence', href: '#about' },
       { label: 'Trader Review Policy', href: '#reviews' },
@@ -62,6 +63,9 @@ const Footer = ({ onNavigate }) => {
   };
 
   const handleLinkClick = (href, e) => {
+    if (href.startsWith('/')) {
+      return;
+    }
     e.preventDefault();
     if (onNavigate) {
       onNavigate(href.replace('#', ''));
@@ -157,14 +161,24 @@ const Footer = ({ onNavigate }) => {
               <ul className="pw-footer-links-list">
                 {footerSections[3].links.map((link, idx) => (
                   <li key={idx}>
-                    <a
-                      href={link.href}
-                      onClick={(e) => handleLinkClick(link.href, e)}
-                      className={`pw-footer-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''}`}
-                    >
-                      <span>{link.label}</span>
-                      {link.joinBroker && <span className="pw-join-pill-tag">Partner</span>}
-                    </a>
+                    {link.href.startsWith('/') ? (
+                      <Link
+                        to={link.href}
+                        className={`pw-footer-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''}`}
+                      >
+                        <span>{link.label}</span>
+                        {link.joinBroker && <span className="pw-join-pill-tag">Partner</span>}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        onClick={(e) => handleLinkClick(link.href, e)}
+                        className={`pw-footer-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''}`}
+                      >
+                        <span>{link.label}</span>
+                        {link.joinBroker && <span className="pw-join-pill-tag">Partner</span>}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -233,9 +247,8 @@ const Footer = ({ onNavigate }) => {
               </div>
 
               {/* Highlighted Join as Broker Card */}
-              <a
-                href="#join-broker"
-                onClick={(e) => handleLinkClick('#join-broker', e)}
+              <Link
+                to="/join-broker"
                 className="pw-footer-join-broker-card"
                 aria-label="Join as Broker"
               >
@@ -248,7 +261,7 @@ const Footer = ({ onNavigate }) => {
                   <ArrowRight size={14} className="pw-join-arrow" />
                 </div>
                 <span className="pw-join-broker-sub">List your brokerage on PipWise</span>
-              </a>
+              </Link>
 
               {/* Verified Independence Trust Badge */}
               <div className="pw-footer-trust-badge">
@@ -295,9 +308,8 @@ const Footer = ({ onNavigate }) => {
           </div>
 
           {/* Mobile Highlighted Join as Broker Card */}
-          <a
-            href="#join-broker"
-            onClick={(e) => handleLinkClick('#join-broker', e)}
+          <Link
+            to="/join-broker"
             className="pw-footer-join-broker-card pw-mobile-join-broker-card"
             aria-label="Join as Broker"
           >
@@ -310,7 +322,7 @@ const Footer = ({ onNavigate }) => {
               <ArrowRight size={14} className="pw-join-arrow" />
             </div>
             <span className="pw-join-broker-sub">Get listed and reviewed by 50,000+ traders</span>
-          </a>
+          </Link>
 
           {/* Accordion List */}
           <div className="pw-footer-accordion">
@@ -342,15 +354,26 @@ const Footer = ({ onNavigate }) => {
                       >
                         <div className="pw-accordion-links">
                           {sec.links.map((link, idx) => (
-                            <a
-                              key={idx}
-                              href={link.href}
-                              onClick={(e) => handleLinkClick(link.href, e)}
-                              className={`pw-accordion-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''} ${link.highlight ? 'is-highlight' : ''}`}
-                            >
-                              <span>{link.label}</span>
-                              <ArrowRight size={13} className="pw-link-arrow" />
-                            </a>
+                            link.href.startsWith('/') ? (
+                              <Link
+                                key={idx}
+                                to={link.href}
+                                className={`pw-accordion-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''} ${link.highlight ? 'is-highlight' : ''}`}
+                              >
+                                <span>{link.label}</span>
+                                <ArrowRight size={13} className="pw-link-arrow" />
+                              </Link>
+                            ) : (
+                              <a
+                                key={idx}
+                                href={link.href}
+                                onClick={(e) => handleLinkClick(link.href, e)}
+                                className={`pw-accordion-link ${link.joinBroker ? 'is-join-broker' : ''} ${link.coral ? 'is-coral' : ''} ${link.highlight ? 'is-highlight' : ''}`}
+                              >
+                                <span>{link.label}</span>
+                                <ArrowRight size={13} className="pw-link-arrow" />
+                              </a>
+                            )
                           ))}
                         </div>
                       </motion.div>

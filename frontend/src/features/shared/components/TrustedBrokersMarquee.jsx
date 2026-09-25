@@ -201,4 +201,4 @@ const TrustedBrokersMarquee = ({ onViewAll }) => {
   );
 };
 
-export default TrustedBrokersMarquee;
+export default React.memo(TrustedBrokersMarquee);

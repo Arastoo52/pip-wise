@@ -10,8 +10,10 @@ dist-ssr/
 
 # Environment and local settings
 .env
-.env.*
-!.env.example
+.env*
+*/.env
+*/.env*
+**/.env*
 *.local
 
 # Logs
