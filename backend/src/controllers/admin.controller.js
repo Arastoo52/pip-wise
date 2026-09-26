@@ -412,6 +412,7 @@ export const getAllKycSubmissions = asyncHandler(async (req, res) => {
       { username: { $regex: search, $options: 'i' } },
       { email: { $regex: search, $options: 'i' } },
       { 'kycData.fullName': { $regex: search, $options: 'i' } },
+      { 'kycData.idCardNumber': { $regex: search, $options: 'i' } },
       { 'kycData.aadhaarNumber': { $regex: search, $options: 'i' } },
     ];
   }
@@ -474,7 +475,7 @@ export const verifyUserKyc = asyncHandler(async (req, res) => {
     if (!user.kycData) user.kycData = {};
     user.kycData.rejectedAt = new Date();
     user.kycData.rejectionReason =
-      reason || 'Aadhaar document verification failed. Please re-upload clear front & back photos.';
+      reason || 'ID Card document verification failed. Please re-upload clear front & back photos.';
   }
 
   await user.save({ validateBeforeSave: false });

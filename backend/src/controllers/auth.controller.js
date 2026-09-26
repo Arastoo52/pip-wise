@@ -485,7 +485,7 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Submit Aadhaar KYC verification details
+ * @desc    Submit ID Card KYC verification details
  * @route   POST /api/v1/auth/kyc/submit
  * @access  Private (Authenticated User)
  */
@@ -495,18 +495,25 @@ export const submitKyc = asyncHandler(async (req, res) => {
     dob,
     phone,
     address,
+    idCardNumber,
     aadhaarNumber,
+    idCardFrontImage,
     aadhaarFrontImage,
+    idCardBackImage,
     aadhaarBackImage,
   } = req.body;
 
-  if (!fullName || !aadhaarNumber) {
-    throw new ApiError(400, 'Full Legal Name and Aadhaar Number are required for KYC.');
+  const idNumber = (idCardNumber || aadhaarNumber || '').trim();
+  const frontImage = idCardFrontImage || aadhaarFrontImage || '';
+  const backImage = idCardBackImage || aadhaarBackImage || '';
+
+  if (!fullName || !idNumber) {
+    throw new ApiError(400, 'Full Legal Name and ID Card Number are required for KYC.');
   }
 
-  const cleanAadhaar = aadhaarNumber.replace(/\s+/g, '');
-  if (!/^\d{12}$/.test(cleanAadhaar)) {
-    throw new ApiError(400, 'Aadhaar Number must be a valid 12-digit number.');
+  const cleanId = idNumber.replace(/\s+/g, '');
+  if (cleanId.length < 3) {
+    throw new ApiError(400, 'Please enter a valid ID Card number.');
   }
 
   const user = await User.findById(req.user._id).select('-password');
@@ -520,9 +527,12 @@ export const submitKyc = asyncHandler(async (req, res) => {
     dob: dob || '',
     phone: phone || '',
     address: address || '',
-    aadhaarNumber: cleanAadhaar,
-    aadhaarFrontImage: aadhaarFrontImage || '',
-    aadhaarBackImage: aadhaarBackImage || '',
+    idCardNumber: cleanId,
+    aadhaarNumber: cleanId,
+    idCardFrontImage: frontImage,
+    aadhaarFrontImage: frontImage,
+    idCardBackImage: backImage,
+    aadhaarBackImage: backImage,
     submittedAt: new Date(),
     verifiedAt: null,
     rejectionReason: '',
@@ -534,7 +544,7 @@ export const submitKyc = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       { user },
-      'KYC documents submitted successfully! PipWise compliance team will review your application.'
+      'ID Card KYC submitted successfully! PipWise compliance team will review your application.'
     )
   );
 });

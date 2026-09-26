@@ -26,7 +26,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
   const [dob, setDob] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [aadhaarNumber, setAadhaarNumber] = useState('');
+  const [idCardNumber, setIdCardNumber] = useState('');
   const [frontImage, setFrontImage] = useState('');
   const [backImage, setBackImage] = useState('');
   const [consent, setConsent] = useState(false);
@@ -39,22 +39,18 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
       setDob(user.kycData.dob || '');
       setPhone(user.kycData.phone || '');
       setAddress(user.kycData.address || '');
-      setAadhaarNumber(
-        user.kycData.aadhaarNumber
-          ? user.kycData.aadhaarNumber.replace(/(\d{4})(?=\d)/g, '$1 ')
-          : ''
+      setIdCardNumber(
+        user.kycData.idCardNumber || user.kycData.aadhaarNumber || ''
       );
-      setFrontImage(user.kycData.aadhaarFrontImage || '');
-      setBackImage(user.kycData.aadhaarBackImage || '');
+      setFrontImage(user.kycData.idCardFrontImage || user.kycData.aadhaarFrontImage || '');
+      setBackImage(user.kycData.idCardBackImage || user.kycData.aadhaarBackImage || '');
       setConsent(true);
     }
   }, [user]);
 
-  // Format Aadhaar Number input: 12 digits with spaces (XXXX XXXX XXXX)
-  const handleAadhaarChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 12);
-    const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
-    setAadhaarNumber(formatted);
+  // Handle ID Card Number input
+  const handleIdCardChange = (e) => {
+    setIdCardNumber(e.target.value.toUpperCase());
   };
 
   // Convert uploaded image file to lightweight Base64 string with canvas compression
@@ -91,18 +87,18 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
     e.preventDefault();
 
     if (!fullName.trim()) {
-      toast.error('Required Field', 'Please enter your Full Legal Name as on Aadhaar.');
+      toast.error('Required Field', 'Please enter your Full Legal Name as on ID Card.');
       return;
     }
 
-    const cleanAadhaar = aadhaarNumber.replace(/\s+/g, '');
-    if (cleanAadhaar.length !== 12) {
-      toast.error('Invalid Aadhaar', 'Please enter a valid 12-digit Aadhaar Card number.');
+    const cleanId = idCardNumber.trim();
+    if (!cleanId || cleanId.length < 3) {
+      toast.error('Invalid ID Card', 'Please enter a valid ID Card number.');
       return;
     }
 
     if (!frontImage) {
-      toast.error('Aadhaar Photo Required', 'Please upload a photo of the Front of your Aadhaar Card.');
+      toast.error('ID Card Photo Required', 'Please upload a photo of the Front of your ID Card.');
       return;
     }
 
@@ -118,14 +114,17 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
         dob,
         phone,
         address,
-        aadhaarNumber: cleanAadhaar,
+        idCardNumber: cleanId,
+        aadhaarNumber: cleanId,
+        idCardFrontImage: frontImage,
         aadhaarFrontImage: frontImage,
+        idCardBackImage: backImage,
         aadhaarBackImage: backImage,
       });
 
       toast.success(
         'KYC Submitted!',
-        'Your Aadhaar details & documents were submitted for verification.'
+        'Your ID Card details & documents were submitted for verification.'
       );
 
       if (onKycUpdated) {
@@ -174,7 +173,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               <div>
                 <h3 className="kyc-modal-title">Trader KYC Verification</h3>
                 <p className="kyc-modal-subtitle">
-                  Verify with Aadhaar to earn your official Verified Trader badge
+                  Verify with your Government ID Card to earn your official Verified Trader badge
                 </p>
               </div>
             </div>
@@ -202,7 +201,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               <Clock size={16} strokeWidth={2.6} />
               <div>
                 <strong>Under Compliance Review</strong>
-                <div>Your Aadhaar card and identity details are currently being inspected.</div>
+                <div>Your ID card and identity details are currently being inspected.</div>
               </div>
             </div>
           ) : kycStatus === 'rejected' ? (
@@ -225,7 +224,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               
               <div className="kyc-form-grid">
                 <div className="kyc-input-group">
-                  <label className="kyc-label">Full Name (As on Aadhaar)</label>
+                  <label className="kyc-label">Full Name (As on ID Card)</label>
                   <input
                     type="text"
                     required
@@ -276,20 +275,20 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
               </div>
             </div>
 
-            {/* Section 2: Aadhaar Card & Document Upload */}
+            {/* Section 2: ID Card & Document Upload */}
             <div className="kyc-section-block">
-              <div className="kyc-section-title">2. Aadhaar Document Details</div>
+              <div className="kyc-section-title">2. Government ID Card Details</div>
 
               <div className="kyc-input-group" style={{ marginBottom: '14px' }}>
-                <label className="kyc-label">12-Digit Aadhaar Number</label>
+                <label className="kyc-label">Government ID Card Number</label>
                 <input
                   type="text"
                   required
-                  maxLength={14}
-                  placeholder="XXXX XXXX XXXX"
-                  value={aadhaarNumber}
-                  onChange={handleAadhaarChange}
-                  className="kyc-input kyc-aadhaar-input"
+                  maxLength={30}
+                  placeholder="e.g. A1234567 or National ID"
+                  value={idCardNumber}
+                  onChange={handleIdCardChange}
+                  className="kyc-input kyc-aadhaar-input kyc-id-input"
                   disabled={isVerified}
                 />
               </div>
@@ -298,16 +297,16 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                 {/* Front Photo */}
                 <div className="kyc-upload-cell">
                   <div className="kyc-upload-cell-label">
-                    <span>Aadhaar Front Side</span>
+                    <span>ID Card Front Side</span>
                     {frontImage && <span className="kyc-checked-chip">✓ Uploaded</span>}
                   </div>
                   <div
                     className={`kyc-dropzone ${frontImage ? 'has-file' : ''}`}
-                    onClick={() => !isVerified && document.getElementById('aadhaar-front-input').click()}
+                    onClick={() => !isVerified && document.getElementById('id-card-front-input').click()}
                   >
                     {frontImage ? (
                       <div className="kyc-preview-container">
-                        <img src={frontImage} alt="Aadhaar Front" className="kyc-preview-img" />
+                        <img src={frontImage} alt="ID Card Front" className="kyc-preview-img" />
                         {!isVerified && (
                           <button
                             type="button"
@@ -331,7 +330,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                   </div>
                   <input
                     type="file"
-                    id="aadhaar-front-input"
+                    id="id-card-front-input"
                     accept="image/*"
                     style={{ display: 'none' }}
                     onChange={(e) => handleFileUpload(e, setFrontImage)}
@@ -342,16 +341,16 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                 {/* Back Photo */}
                 <div className="kyc-upload-cell">
                   <div className="kyc-upload-cell-label">
-                    <span>Aadhaar Back Side (Optional)</span>
+                    <span>ID Card Back Side (Optional)</span>
                     {backImage && <span className="kyc-checked-chip">✓ Uploaded</span>}
                   </div>
                   <div
                     className={`kyc-dropzone ${backImage ? 'has-file' : ''}`}
-                    onClick={() => !isVerified && document.getElementById('aadhaar-back-input').click()}
+                    onClick={() => !isVerified && document.getElementById('id-card-back-input').click()}
                   >
                     {backImage ? (
                       <div className="kyc-preview-container">
-                        <img src={backImage} alt="Aadhaar Back" className="kyc-preview-img" />
+                        <img src={backImage} alt="ID Card Back" className="kyc-preview-img" />
                         {!isVerified && (
                           <button
                             type="button"
@@ -375,7 +374,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                   </div>
                   <input
                     type="file"
-                    id="aadhaar-back-input"
+                    id="id-card-back-input"
                     accept="image/*"
                     style={{ display: 'none' }}
                     onChange={(e) => handleFileUpload(e, setBackImage)}
@@ -396,7 +395,7 @@ export const KycModal = ({ isOpen, onClose, onKycUpdated }) => {
                 className="kyc-checkbox"
               />
               <label htmlFor="kyc-consent-checkbox" className="kyc-consent-text">
-                I hereby declare that the Aadhaar details and document copies provided belong to me and are authentic.
+                I hereby declare that the ID Card details and document copies provided belong to me and are authentic.
                 I consent to TradeSafeBrokers using this information exclusively for identity verification.
               </label>
             </div>

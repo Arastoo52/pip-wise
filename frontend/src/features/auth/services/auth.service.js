@@ -52,8 +52,8 @@ export const authService = {
   },
 
   /**
-   * Submit Aadhaar KYC documents and details
-   * @param {{ fullName: string, dob: string, phone: string, address: string, aadhaarNumber: string, aadhaarFrontImage?: string, aadhaarBackImage?: string }} kycData
+   * Submit ID Card KYC documents and details
+   * @param {{ fullName: string, dob: string, phone: string, address: string, idCardNumber: string, aadhaarNumber?: string, idCardFrontImage?: string, idCardBackImage?: string }} kycData
    */
   async submitKyc(kycData) {
     return await apiClient.post('/auth/kyc/submit', kycData);

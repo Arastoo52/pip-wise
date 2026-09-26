@@ -569,7 +569,7 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
                 {user?.isKycVerified && (
                   <span
                     className="user-verified-chip"
-                    title="Verified Trader (Aadhaar KYC Approved)"
+                    title="Verified Trader (ID Card KYC Approved)"
                   >
                     <CheckCircle2 size={11} strokeWidth={3} />
                     <span className="verified-text">Verified</span>

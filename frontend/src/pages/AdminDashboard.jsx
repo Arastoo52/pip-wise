@@ -368,7 +368,7 @@ const BrokerInspectModal = React.memo(({ broker, onClose, onApprove, onReject })
 });
 
 // ═══════════════════════════════════════════════════════════════
-// TRADER KYC AADHAAR INSPECTION MODAL (LEGAL DETAILS & PHOTOS)
+// TRADER KYC ID CARD INSPECTION MODAL (LEGAL DETAILS & PHOTOS)
 // ═══════════════════════════════════════════════════════════════
 const UserKycInspectModal = React.memo(({
   kycUser,
@@ -384,8 +384,8 @@ const UserKycInspectModal = React.memo(({
   if (!kycUser) return null;
 
   const kyc = kycUser.kycData || {};
-  const frontImg = kyc.aadhaarFrontImage;
-  const backImg = kyc.aadhaarBackImage;
+  const frontImg = kyc.idCardFrontImage || kyc.aadhaarFrontImage;
+  const backImg = kyc.idCardBackImage || kyc.aadhaarBackImage;
   const currentImg = activeTab === 'front' ? frontImg : backImg;
 
   return (
@@ -446,7 +446,7 @@ const UserKycInspectModal = React.memo(({
 
           {/* Modal Body */}
           <div className="d2-inspect-body d2-kyc-body-split">
-            {/* LEFT / TOP: AADHAAR CARD IMAGE VIEWER */}
+            {/* LEFT / TOP: ID CARD IMAGE VIEWER */}
             <div className="d2-kyc-doc-viewer">
               <div className="d2-kyc-doc-tabs">
                 <button
@@ -458,7 +458,7 @@ const UserKycInspectModal = React.memo(({
                   }}
                 >
                   <FileText size={13} />
-                  <span>Aadhaar Front {frontImg ? '✓' : '(Missing)'}</span>
+                  <span>ID Front {frontImg ? '✓' : '(Missing)'}</span>
                 </button>
                 <button
                   type="button"
@@ -469,7 +469,7 @@ const UserKycInspectModal = React.memo(({
                   }}
                 >
                   <FileText size={13} />
-                  <span>Aadhaar Back {backImg ? '✓' : '(Missing)'}</span>
+                  <span>ID Back {backImg ? '✓' : '(Missing)'}</span>
                 </button>
               </div>
 
@@ -477,7 +477,7 @@ const UserKycInspectModal = React.memo(({
                 {currentImg ? (
                   <img
                     src={currentImg}
-                    alt={`Aadhaar ${activeTab}`}
+                    alt={`ID Card ${activeTab}`}
                     className="d2-kyc-img"
                     onClick={() => setIsZoomed(!isZoomed)}
                     title="Click to toggle zoom"
@@ -511,15 +511,15 @@ const UserKycInspectModal = React.memo(({
               <h4 className="d2-inspect-section-title">Submitted Identity Credentials</h4>
               <div className="d2-inspect-grid">
                 <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
-                  <span className="d2-cell-label">Full Legal Name (as on Aadhaar)</span>
+                  <span className="d2-cell-label">Full Legal Name (as on ID Card)</span>
                   <span className="d2-cell-val highlight" style={{ fontSize: '15px' }}>
                     {kyc.fullName || 'Not Provided'}
                   </span>
                 </div>
                 <div className="d2-inspect-cell" style={{ gridColumn: 'span 2' }}>
-                  <span className="d2-cell-label">12-Digit Aadhaar Number</span>
-                  <span className="d2-cell-val" style={{ fontFamily: 'monospace', letterSpacing: '0.1em', fontSize: '14px', color: '#10b981' }}>
-                    {kyc.aadhaarNumber ? kyc.aadhaarNumber.replace(/(\d{4})(?=\d)/g, '$1 ') : 'Not Provided'}
+                  <span className="d2-cell-label">Government ID Card Number</span>
+                  <span className="d2-cell-val" style={{ fontFamily: 'monospace', letterSpacing: '0.08em', fontSize: '14px', color: '#10b981' }}>
+                    {kyc.idCardNumber || kyc.aadhaarNumber || 'Not Provided'}
                   </span>
                 </div>
                 <div className="d2-inspect-cell">
@@ -547,7 +547,7 @@ const UserKycInspectModal = React.memo(({
                   type="text"
                   className="d2-search-input"
                   style={{ width: '100%', borderRadius: '8px' }}
-                  placeholder="e.g. Aadhaar back photo is blurry, name mismatch..."
+                  placeholder="e.g. ID Card back photo is blurry, name mismatch..."
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                 />
@@ -880,7 +880,7 @@ export default function AdminDashboard() {
     }
   }, [inspectingBroker, showToast]);
 
-  // 3. VERIFY OR REJECT TRADER KYC (AADHAAR)
+  // 3. VERIFY OR REJECT TRADER KYC (ID CARD)
   const handleVerifyUserKyc = useCallback(async (userId, status, reason = '') => {
     try {
       await adminService.verifyUserKyc(userId, status, reason);
@@ -1205,6 +1205,7 @@ export default function AdminDashboard() {
           s.username?.toLowerCase().includes(q) ||
           s.email?.toLowerCase().includes(q) ||
           s.kycData?.fullName?.toLowerCase().includes(q) ||
+          s.kycData?.idCardNumber?.toLowerCase().includes(q) ||
           s.kycData?.aadhaarNumber?.includes(q) ||
           s.kycData?.phone?.includes(q)
       );
@@ -1268,12 +1269,12 @@ export default function AdminDashboard() {
               )}
             </motion.button>
 
-            {/* 3. KYC VERIFICATIONS (AADHAAR) */}
+            {/* 3. KYC VERIFICATIONS (ID CARD) */}
             <motion.button
               whileTap={{ scale: 0.92 }}
               className={`d2-dock-item ${activeDock === 'kyc' ? 'active' : ''}`}
               onClick={() => switchDockView('kyc', 'Trader KYC Verifications')}
-              title="Trader Aadhaar KYC Approvals"
+              title="Trader ID Card KYC Approvals"
             >
               <ShieldCheck size={19} />
               {kycCounts.pending > 0 ? (
@@ -1440,7 +1441,7 @@ export default function AdminDashboard() {
                 className="d2-search-input"
                 placeholder={
                   activeDock === 'kyc' || activeNav === 'kyc'
-                    ? 'Search KYC by username, email, full name, or Aadhaar...'
+                    ? 'Search KYC by username, email, full name, or ID Card...'
                     : activeDock === 'users'
                     ? 'Search registered users by username/email...'
                     : activeDock === 'reviews'
@@ -2247,9 +2248,9 @@ export default function AdminDashboard() {
                 >
                   <div className="d2-view-banner">
                     <div className="d2-view-banner-text">
-                      <h2>Trader Aadhaar KYC Queue ({filteredKycSubmissions.length})</h2>
+                      <h2>Trader ID Card KYC Queue ({filteredKycSubmissions.length})</h2>
                       <p>
-                        Inspect uploaded front and back Aadhaar documents, verify trader legal identities, and award the official Verified Trader badge.
+                        Inspect uploaded front and back ID Card documents, verify trader legal identities, and award the official Verified Trader badge.
                       </p>
                     </div>
                     <button className="d2-banner-btn" onClick={() => loadAdminData()}>
@@ -2350,12 +2351,12 @@ export default function AdminDashboard() {
                               </div>
                             </div>
 
-                            {/* METRICS / AADHAAR SUMMARY & THUMBNAILS */}
+                            {/* METRICS / ID CARD SUMMARY & THUMBNAILS */}
                             <div className="d2-item-metrics">
                               <div className="d2-metric-pill">
-                                <span className="d2-metric-pill-label">Aadhaar Number</span>
+                                <span className="d2-metric-pill-label">ID Card Number</span>
                                 <span className="d2-metric-pill-val" style={{ fontFamily: 'monospace' }}>
-                                  {kyc.aadhaarNumber ? `•••• •••• ${kyc.aadhaarNumber.slice(-4)}` : 'N/A'}
+                                  {kyc.idCardNumber || kyc.aadhaarNumber || 'N/A'}
                                 </span>
                               </div>
                               <div className="d2-metric-pill">
@@ -2364,13 +2365,13 @@ export default function AdminDashboard() {
                               </div>
                               {/* Thumbnails */}
                               <div className="d2-kyc-mini-thumbs">
-                                {kyc.aadhaarFrontImage ? (
-                                  <img src={kyc.aadhaarFrontImage} alt="Front" className="d2-mini-thumb" title="Aadhaar Front" />
+                                {(kyc.idCardFrontImage || kyc.aadhaarFrontImage) ? (
+                                  <img src={kyc.idCardFrontImage || kyc.aadhaarFrontImage} alt="Front" className="d2-mini-thumb" title="ID Card Front" />
                                 ) : (
                                   <span className="d2-mini-thumb-empty">No Front</span>
                                 )}
-                                {kyc.aadhaarBackImage ? (
-                                  <img src={kyc.aadhaarBackImage} alt="Back" className="d2-mini-thumb" title="Aadhaar Back" />
+                                {(kyc.idCardBackImage || kyc.aadhaarBackImage) ? (
+                                  <img src={kyc.idCardBackImage || kyc.aadhaarBackImage} alt="Back" className="d2-mini-thumb" title="ID Card Back" />
                                 ) : (
                                   <span className="d2-mini-thumb-empty">No Back</span>
                                 )}
@@ -2386,7 +2387,7 @@ export default function AdminDashboard() {
                                   setSelectedKyc(sub);
                                   setKycRejectReason(kyc.rejectionReason || '');
                                 }}
-                                title="Inspect full Aadhaar document images and details"
+                                title="Inspect full ID Card document images and details"
                               >
                                 <Eye size={13} strokeWidth={2.4} />
                                 <span>Inspect &amp; Verify</span>
@@ -2410,7 +2411,7 @@ export default function AdminDashboard() {
                                   className="d2-btn-reject"
                                   onClick={() => {
                                     setSelectedKyc(sub);
-                                    setKycRejectReason('Aadhaar photo is unclear. Please re-upload clear photos.');
+                                    setKycRejectReason('ID Card photo is unclear. Please re-upload clear photos.');
                                   }}
                                   title="Reject KYC"
                                 >
@@ -3001,7 +3002,7 @@ export default function AdminDashboard() {
         onReject={handleRejectBroker}
       />
 
-      {/* TRADER KYC AADHAAR INSPECTION MODAL */}
+      {/* TRADER KYC ID CARD INSPECTION MODAL */}
       <UserKycInspectModal
         kycUser={selectedKyc}
         onClose={() => setSelectedKyc(null)}

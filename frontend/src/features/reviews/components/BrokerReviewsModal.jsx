@@ -708,7 +708,7 @@ export const BrokerReviewsModal = ({ isOpen, onClose, broker, onReviewSubmitted 
                             {rev.verifiedTrader && (
                               <span
                                 className="brm-rc-verified-chip"
-                                title="Verified Aadhaar Trader on TradeSafeBrokers"
+                                title="Verified ID Card Trader on TradeSafeBrokers"
                               >
                                 <CheckCircle2 size={10} strokeWidth={2.8} /> Verified Trader
                               </span>

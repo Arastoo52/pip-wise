@@ -36,7 +36,7 @@ export const KycFloatingWidget = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 10 }}
             onClick={() => setIsMinimized(false)}
-            title="Complete your Aadhaar KYC"
+            title="Complete your ID Card KYC"
             type="button"
           >
             <span className="kyc-minimized-icon-box">
@@ -106,8 +106,8 @@ export const KycFloatingWidget = () => {
                   {kycStatus === 'rejected'
                     ? 'Photo or document was rejected. Please re-upload clear photos.'
                     : kycStatus === 'pending'
-                    ? 'Aadhaar documents submitted. Verification is in progress.'
-                    : 'Verify your Aadhaar to earn the official Verified Trader badge.'}
+                    ? 'ID Card documents submitted. Verification is in progress.'
+                    : 'Verify your ID Card to earn the official Verified Trader badge.'}
                 </p>
               </div>
             </div>
@@ -119,10 +119,10 @@ export const KycFloatingWidget = () => {
             >
               <span>
                 {kycStatus === 'rejected'
-                  ? 'Re-upload Aadhaar'
+                  ? 'Re-upload ID Card'
                   : kycStatus === 'pending'
                   ? 'View Submission'
-                  : 'Verify with Aadhaar'}
+                  : 'Verify with ID Card'}
               </span>
               <ArrowRight size={13} strokeWidth={2.5} />
             </button>

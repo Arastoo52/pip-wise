@@ -104,7 +104,7 @@ export const seedAdminAndReviews = async () => {
           userEmail: 'karan.m@rediffmail.com',
           rating: 5,
           title: 'Seamless weekend crypto deposits',
-          comment: 'Able to fund account on Sunday night before market open. Verification took less than 15 minutes with Aadhaar card.',
+          comment: 'Able to fund account on Sunday night before market open. Verification took less than 15 minutes with ID card.',
           sentiment: 'positive',
           status: 'approved',
           verifiedTrader: true,
