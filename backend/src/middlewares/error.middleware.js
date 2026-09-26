@@ -8,6 +8,18 @@ import config from '../config/config.js';
 export const errorHandler = (err, req, res, next) => {
   let error = err;
 
+  // Guarantee CORS headers are present on all error responses (prevents browser CORS errors on 4xx/5xx)
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+    );
+  }
+
   // Handle Mongoose duplicate key error (code 11000)
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue)[0];

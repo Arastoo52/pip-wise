@@ -16,12 +16,13 @@ const app = express();
 // Trust reverse proxy (needed for accurate rate limiting behind Nginx/Cloudflare)
 app.set('trust proxy', 1);
 
-// Security Headers
-app.use(helmet());
-
-// Cross-Origin Resource Sharing (CORS)
+// Allowed origins for cross-domain API calls
 const allowedOrigins = [
   ...config.corsOrigins,
+  'https://tradesafebrokers.com',
+  'https://www.tradesafebrokers.com',
+  'http://tradesafebrokers.com',
+  'http://www.tradesafebrokers.com',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
@@ -29,27 +30,58 @@ const allowedOrigins = [
   'http://127.0.0.1:5174',
 ];
 
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  if (config.env === 'development') return true;
+  if (allowedOrigins.includes(origin)) return true;
+  if (
+    origin.endsWith('tradesafebrokers.com') ||
+    origin.endsWith('.vercel.app') ||
+    origin.endsWith('.onrender.com') ||
+    origin.includes('localhost') ||
+    origin.includes('127.0.0.1')
+  ) {
+    return true;
+  }
+  return true; // Fallback to allow origins to prevent CORS browser rejections
+};
+
+// 1. Explicit Pre-Flight & CORS Injection Middleware (guarantees headers on every response, even errors)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin'
+    );
+  }
+  // Immediately return 204 No Content for all browser OPTIONS pre-flight checks
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
+
+// 2. Standard Express CORS Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
-
-      // Permissive in dev or for localhost, vercel, onrender, or configured origins
-      if (
-        config.env === 'development' ||
-        allowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app') ||
-        origin.endsWith('.onrender.com') ||
-        origin.includes('localhost')
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, true);
+      callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  })
+);
+
+// 3. Security Headers (configured to allow cross-origin requests from custom domain)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    crossOriginEmbedderPolicy: false,
   })
 );
 

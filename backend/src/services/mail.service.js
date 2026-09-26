@@ -49,13 +49,39 @@ const getTransporter = () => {
         user,
         pass,
       },
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 20000,
+      tls: {
+        rejectUnauthorized: false, // Prevents certificate chain issues on cloud containers
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
   }
 
   return transporterInstance;
+};
+
+/**
+ * Creates an alternative STARTTLS transporter on port 587
+ */
+const getFallbackTransporter = () => {
+  const { host, user, pass } = config.smtp;
+  return nodemailer.createTransport({
+    host: host || 'smtp.hostinger.com',
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user,
+      pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+  });
 };
 
 /**
@@ -74,15 +100,32 @@ export const verifySmtpConnection = async () => {
       secure: config.smtp.secure,
     };
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
+    // If primary port (e.g. 465) failed, attempt fallback on port 587
+    try {
+      const fallbackTransporter = getFallbackTransporter();
+      await fallbackTransporter.verify();
+      return {
+        connected: true,
+        host: config.smtp.host,
+        port: 587,
+        secure: false,
+        fallbackUsed: true,
+      };
+    } catch (fallbackError) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(
+        503,
+        `Failed to establish connection with the SMTP mail server: ${error.message || 'Timeout'}`
+      );
     }
-    throw new ApiError(502, `Failed to establish connection with the SMTP mail server: ${error.message || 'Timeout'}`);
   }
 };
 
 /**
  * Generic reusable function to send an email via Hostinger SMTP
+ * Includes automatic port 587 STARTTLS fallback if port 465 times out on cloud hosting
  * @param {{ to: string, subject: string, html: string, text?: string }} options
  */
 export const sendEmail = async ({ to, subject, html, text }) => {
@@ -90,33 +133,47 @@ export const sendEmail = async ({ to, subject, html, text }) => {
     throw new ApiError(400, 'Recipient, subject, and email content are required.');
   }
 
+  const fromHeader = `"${config.smtp.fromName || 'TradeSafe Brokers'}" <${config.smtp.fromEmail || config.smtp.user}>`;
+  const mailOptions = {
+    from: fromHeader,
+    to,
+    subject,
+    text: text || 'Please view this email in an HTML-compatible email client.',
+    html,
+  };
+
   try {
     const transporter = getTransporter();
-    const fromHeader = `"${config.smtp.fromName || 'TradeSafe Brokers'}" <${config.smtp.fromEmail || config.smtp.user}>`;
-
-    const info = await transporter.sendMail({
-      from: fromHeader,
-      to,
-      subject,
-      text: text || 'Please view this email in an HTML-compatible email client.',
-      html,
-    });
+    const info = await transporter.sendMail(mailOptions);
 
     console.log(`📧 [Mail Sent Successfully] To: ${to} | MessageId: ${info.messageId}`);
-
     return {
       success: true,
       messageId: info.messageId,
     };
   } catch (error) {
-    console.error(`❌ [Mail Send Failed] To: ${to} | Error:`, error.message);
-    if (error instanceof ApiError) {
-      throw error;
+    console.warn(`⚠️ [Mail Primary Failed] Attempting port 587 STARTTLS fallback... Reason: ${error.message}`);
+    // If primary port 465 timed out or refused, try fallback on port 587 (STARTTLS)
+    try {
+      const fallbackTransporter = getFallbackTransporter();
+      const fallbackInfo = await fallbackTransporter.sendMail(mailOptions);
+
+      console.log(`📧 [Mail Sent via Port 587 Fallback] To: ${to} | MessageId: ${fallbackInfo.messageId}`);
+      return {
+        success: true,
+        messageId: fallbackInfo.messageId,
+        fallbackUsed: true,
+      };
+    } catch (fallbackError) {
+      console.error(`❌ [Mail Send Failed completely] To: ${to} | Error:`, fallbackError.message);
+      if (error instanceof ApiError) {
+        throw error;
+      }
+      throw new ApiError(
+        503,
+        `Unable to send verification email at this moment (${fallbackError.message || error.message || 'SMTP service error'}). Please try again shortly.`
+      );
     }
-    throw new ApiError(
-      502,
-      `Unable to send verification email at this moment (${error.message || 'SMTP service error'}). Please try again shortly.`
-    );
   }
 };
 

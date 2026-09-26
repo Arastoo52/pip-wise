@@ -61,9 +61,10 @@ apiClient.interceptors.response.use(
       'An unexpected error occurred. Please try again.';
 
     if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
-      friendlyMessage = 'Server response took too long. Please ensure the backend server is running and try again.';
+      friendlyMessage = 'Server request timed out. Please try again in a moment.';
     } else if (error.code === 'ERR_NETWORK' || !error.response) {
-      friendlyMessage = 'Unable to connect to server. Please ensure the backend server is running on port 5001.';
+      friendlyMessage =
+        'Unable to reach the server. Please check your internet connection or try again in a few moments.';
     }
 
     const customError = {
