@@ -35,6 +35,9 @@ const config = {
     fromName: process.env.SMTP_FROM_NAME || 'TradeSafe Brokers',
     fromEmail: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || 'admin@tradesafebrokers.com',
   },
+  resendApiKey: process.env.RESEND_API_KEY,
+  brevoApiKey: process.env.BREVO_API_KEY,
+  fallbackTestOtp: process.env.FALLBACK_TEST_OTP,
 };
 
 // Guard against missing required variables in production
