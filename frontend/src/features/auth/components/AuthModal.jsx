@@ -369,11 +369,18 @@ export const AuthModal = () => {
     fieldErrors.email ||
     (authModalMode === "register" && error?.toLowerCase().includes("email") ? error : null);
 
-  const loginError = authModalMode === "login" ? error : null;
+  const isCredentialError = Boolean(
+    error &&
+      (error.toLowerCase().includes("invalid") ||
+        error.toLowerCase().includes("password") ||
+        error.toLowerCase().includes("credentials"))
+  );
+
+  const generalError = error && !isCredentialError ? error : null;
   const passwordError =
     fieldErrors.password ||
     (authModalMode === "register" && error?.toLowerCase().includes("password") ? error : null) ||
-    loginError;
+    (authModalMode === "login" && isCredentialError ? error : null);
 
   const hasLoginError = authModalMode === "login" && Boolean(error);
 
@@ -665,6 +672,24 @@ export const AuthModal = () => {
                     <span className="pipwise-field-error-text">{passwordError}</span>
                   )}
                 </div>
+
+                {generalError && (
+                  <div
+                    className="pipwise-general-error-banner"
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      backgroundColor: "rgba(239, 68, 68, 0.12)",
+                      border: "1px solid rgba(239, 68, 68, 0.3)",
+                      color: "#f87171",
+                      fontSize: "0.82rem",
+                      textAlign: "center",
+                      lineHeight: "1.4",
+                    }}
+                  >
+                    {generalError}
+                  </div>
+                )}
 
                 <button
                   type="submit"

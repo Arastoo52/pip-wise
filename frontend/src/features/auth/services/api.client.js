@@ -32,7 +32,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 30000, // 30 seconds for reliable SMTP email delivery
 });
 
 // Request interceptor to attach Bearer token from localStorage
@@ -55,12 +55,20 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    let friendlyMessage =
+      error.response?.data?.message ||
+      error.message ||
+      'An unexpected error occurred. Please try again.';
+
+    if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+      friendlyMessage = 'Server response took too long. Please ensure the backend server is running and try again.';
+    } else if (error.code === 'ERR_NETWORK' || !error.response) {
+      friendlyMessage = 'Unable to connect to server. Please ensure the backend server is running on port 5001.';
+    }
+
     const customError = {
       statusCode: error.response?.status || 500,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        'An unexpected error occurred. Please try again.',
+      message: friendlyMessage,
       errors: error.response?.data?.errors || [],
     };
     return Promise.reject(customError);
