@@ -22,7 +22,7 @@ const startServer = async () => {
     await seedAdminAndReviews();
 
     // Start listening for incoming requests
-    server = app.listen(config.port, () => {
+    server = app.listen(config.port, '0.0.0.0', () => {
       console.log(`🚀 PipWise Backend running in ${config.env.toUpperCase()} mode`);
       console.log(`📡 Server listening at: http://localhost:${config.port}`);
       console.log(`🩺 Health check URL: http://localhost:${config.port}/api/v1/health`);
