@@ -3807,10 +3807,14 @@ input {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
+.comp-mobile-badges {
+    display: none;
+}
+
 @media (max-width: 1180px) {
     .broker-comp-card {
         grid-template-columns: 1fr;
-        gap: 3rem;
+        gap: 2.5rem;
         padding: 3rem 2.5rem;
     }
 
@@ -3827,29 +3831,104 @@ input {
 }
 
 @media (max-width: 768px) {
+    .broker-comp-section {
+        padding: 1.5rem 0 3.5rem !important;
+    }
+
+    .broker-comp-container {
+        padding: 0 1rem !important;
+    }
+
     .broker-comp-card {
-        padding: 2.2rem 1.5rem;
-        border-radius: 20px;
+        grid-template-columns: 1fr !important;
+        gap: 0 !important;
+        padding: 2.5rem 1.4rem !important;
+        border-radius: 24px !important;
+        min-height: auto !important;
+        text-align: center !important;
+        align-items: center !important;
+        box-shadow: 0 18px 45px -10px rgba(219, 64, 4, 0.45) !important;
     }
 
-    .comp-table-board {
-        overflow-x: auto;
-        padding: 1rem 0.85rem;
-        max-width: 100%;
+    .comp-left-content {
+        max-width: 100% !important;
+        align-items: center !important;
+        text-align: center !important;
     }
 
-    .comp-criteria-col {
-        width: 115px;
-        margin-right: 0.5rem;
+    .comp-eyebrow-wrapper {
+        margin-bottom: 0.95rem !important;
     }
 
-    .comp-broker-col {
-        width: 110px;
+    .comp-headline {
+        font-size: clamp(1.75rem, 6.8vw, 2.25rem) !important;
+        line-height: 1.18 !important;
+        margin-bottom: 0.75rem !important;
+        text-align: center !important;
     }
 
-    .comp-annotation-wrap {
-        margin-left: 0.85rem;
-        margin-bottom: 2.5rem;
+    .comp-description {
+        font-size: 0.92rem !important;
+        line-height: 1.55 !important;
+        margin-bottom: 1.25rem !important;
+        max-width: 380px !important;
+        text-align: center !important;
+        color: rgba(255, 255, 255, 0.92) !important;
+    }
+
+    .comp-mobile-badges {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        margin-bottom: 1.5rem !important;
+        width: 100% !important;
+    }
+
+    .comp-mini-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.01em !important;
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.16) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        padding: 5px 12px !important;
+        border-radius: 999px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    .comp-mini-dot {
+        width: 5px !important;
+        height: 5px !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        box-shadow: 0 0 6px #ffffff !important;
+    }
+
+    .comp-cta-btn {
+        width: 100% !important;
+        max-width: 280px !important;
+        justify-content: center !important;
+        padding: 0.88rem 1.6rem !important;
+        font-size: 0.95rem !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+    }
+
+    /* Completely hide MacBook on mobile screens as requested */
+    .comp-right-visual {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
     }
 }
 

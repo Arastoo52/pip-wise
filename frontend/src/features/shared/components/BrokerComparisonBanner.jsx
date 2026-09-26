@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MacbookScrollChoreography from '../../../macbook/MacbookScrollChoreography';
@@ -6,6 +6,21 @@ import MacbookScrollChoreography from '../../../macbook/MacbookScrollChoreograph
 const BrokerComparisonBanner = ({ onStartComparing }) => {
   const bannerRef = useRef(null);
   const navigate = useNavigate();
+
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleCompareClick = (e) => {
     if (typeof onStartComparing === 'function') {
@@ -185,6 +200,19 @@ const BrokerComparisonBanner = ({ onStartComparing }) => {
               Analyze fees, trading conditions, platforms and more to find your perfect match.
             </motion.p>
 
+            {/* Mobile Feature Highlights Chips */}
+            <div className="comp-mobile-badges" aria-hidden="true">
+              <span className="comp-mini-pill">
+                <span className="comp-mini-dot" /> Live Spreads
+              </span>
+              <span className="comp-mini-pill">
+                <span className="comp-mini-dot" /> Side-by-Side Matrix
+              </span>
+              <span className="comp-mini-pill">
+                <span className="comp-mini-dot" /> Verified Fees
+              </span>
+            </div>
+
             <button
               type="button"
               className="comp-cta-btn"
@@ -210,10 +238,12 @@ const BrokerComparisonBanner = ({ onStartComparing }) => {
             </button>
           </motion.div>
 
-          {/* Right Column: 3D Apple MacBook Pro with Scroll Choreography */}
-          <div className="comp-right-visual">
-            <MacbookScrollChoreography scrollContainerRef={bannerRef} />
-          </div>
+          {/* Right Column: 3D Apple MacBook Pro with Scroll Choreography (Desktop/Tablet Only) */}
+          {!isMobile && (
+            <div className="comp-right-visual">
+              <MacbookScrollChoreography scrollContainerRef={bannerRef} />
+            </div>
+          )}
         </motion.div>
       </div>
     </section>
