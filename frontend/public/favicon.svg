@@ -1,21 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
-  <!-- Sleek dark charcoal squircle container matching floating navbar -->
-  <rect width="64" height="64" rx="16" fill="#181b22"/>
-  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Dark Navbar Container (#1e2026) with crisp rounded border -->
+  <rect width="64" height="64" rx="14" fill="#1e2026"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" stroke="rgba(255, 255, 255, 0.09)" fill="none"/>
 
-  <!-- Subtle ambient glow beneath candlestick bars -->
-  <radialGradient id="tsb-glow" cx="50%" cy="55%" r="50%">
-    <stop offset="0%" stop-color="#fc5d21" stop-opacity="0.35"/>
-    <stop offset="100%" stop-color="#fc5d21" stop-opacity="0"/>
-  </radialGradient>
-  <circle cx="32" cy="34" r="22" fill="url(#tsb-glow)"/>
+  <!-- Candlestick Bar 1: Left (Orange #fc5d21, Height: 26.5px) -->
+  <rect x="9.5" y="27.5" width="11" height="26.5" rx="5.5" fill="#fc5d21"/>
 
-  <!-- Candlestick Bar 1: Left (Brand Coral/Orange, Height: 20px) -->
-  <rect x="16" y="28" width="7" height="20" rx="3.5" fill="#fc5d21"/>
+  <!-- Candlestick Bar 2: Center (Crisp White #ffffff, Height: 43px) -->
+  <rect x="26.5" y="11" width="11" height="43" rx="5.5" fill="#ffffff"/>
 
-  <!-- Candlestick Bar 2: Center (Pure Crisp White, Height: 34px) -->
-  <rect x="28.5" y="14" width="7" height="34" rx="3.5" fill="#ffffff"/>
-
-  <!-- Candlestick Bar 3: Right (Brand Coral/Orange, Height: 26px) -->
-  <rect x="41" y="22" width="7" height="26" rx="3.5" fill="#fc5d21"/>
+  <!-- Candlestick Bar 3: Right (Orange #fc5d21, Height: 35px) -->
+  <rect x="43.5" y="19" width="11" height="35" rx="5.5" fill="#fc5d21"/>
 </svg>
