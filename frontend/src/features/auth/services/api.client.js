@@ -5,9 +5,24 @@ import axios from 'axios';
  * withCredentials: true ensures HTTP-Only cookies are sent and received
  */
 const getBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_URL;
+  let envUrl = import.meta.env.VITE_API_URL;
   if (!envUrl) return 'http://localhost:5001/api/v1';
-  const clean = envUrl.trim().replace(/\/+$/, '');
+
+  // If user accidentally entered "VITE_API_URL=https://..." in Vercel Value field
+  if (typeof envUrl === 'string' && envUrl.includes('=')) {
+    const parts = envUrl.split('=');
+    envUrl = parts.slice(1).join('=');
+  }
+
+  let clean = String(envUrl).trim().replace(/^['"]|['"]$/g, '').replace(/\/+$/, '');
+
+  // If user provided a domain without protocol, auto-prepend https://
+  if (clean && !clean.startsWith('http://') && !clean.startsWith('https://')) {
+    clean = `https://${clean}`;
+  }
+
+  if (!clean) return 'http://localhost:5001/api/v1';
+
   return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`;
 };
 
