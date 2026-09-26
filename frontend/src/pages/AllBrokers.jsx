@@ -447,41 +447,15 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
 
                   {/* Broker Promo Offer Banner if available */}
                   {broker.promotionalOffer?.headline && (
-                    <div
-                      style={{
-                        margin: '7px 0 10px 0',
-                        padding: '5px 9px',
-                        background: 'rgba(252, 93, 33, 0.07)',
-                        border: '1px dashed rgba(252, 93, 33, 0.3)',
-                        borderRadius: '8px',
-                        fontSize: '11px',
-                        color: '#fc5d21',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        fontWeight: 600,
-                      }}
-                      title="Exclusive Trader Deposit Offer"
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', overflow: 'hidden' }}>
-                        <Sparkles size={11} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <div className="card-promo-banner" title="Exclusive Trader Deposit Offer">
+                      <div className="promo-left-wrap">
+                        <Sparkles size={11} className="promo-sparkle-icon" />
+                        <span className="promo-headline-text">
                           {broker.promotionalOffer.headline}
                         </span>
                       </div>
                       {broker.promotionalOffer.code && (
-                        <span
-                          style={{
-                            background: '#fc5d21',
-                            color: '#fff',
-                            fontSize: '9px',
-                            fontWeight: 800,
-                            padding: '1px 5px',
-                            borderRadius: '4px',
-                            flexShrink: 0,
-                            marginLeft: '6px',
-                          }}
-                        >
+                        <span className="promo-code-pill">
                           {broker.promotionalOffer.code}
                         </span>
                       )}
@@ -524,47 +498,39 @@ export const AllBrokers = React.memo(({ theme = 'dark' }) => {
                       aria-label={`Open account with ${broker.name}`}
                     >
                       <span>Open Account</span>
-                      <ExternalLink size={12} />
+                      <ExternalLink size={13} strokeWidth={2.4} />
                     </a>
 
-                    <button
-                      type="button"
-                      className="card-specs-cta"
-                      onClick={() => setSelectedBrokerForReviews(broker)}
-                      aria-label={`Read trader reviews for ${broker.name}`}
-                      style={{
-                        background: 'rgba(252, 93, 33, 0.1)',
-                        color: '#fc5d21',
-                        borderColor: 'rgba(252, 93, 33, 0.3)',
-                      }}
-                    >
-                      <span>Reviews</span>
-                    </button>
+                    <div className="card-secondary-actions">
+                      <button
+                        type="button"
+                        className="card-sec-btn sec-btn-reviews"
+                        onClick={() => setSelectedBrokerForReviews(broker)}
+                        aria-label={`Read trader reviews for ${broker.name}`}
+                        title="Trader Reviews"
+                      >
+                        <span>Reviews</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      className="card-specs-cta"
-                      onClick={() => setSelectedBrokerForHub(broker)}
-                      title={`Broker Partner Desk & Q&A for ${broker.name}`}
-                      style={{
-                        background: 'rgba(59, 130, 246, 0.08)',
-                        color: '#60a5fa',
-                        borderColor: 'rgba(59, 130, 246, 0.3)',
-                        padding: '0 8px',
-                        fontSize: '0.74rem',
-                      }}
-                    >
-                      <span>Desk</span>
-                    </button>
+                      <button
+                        type="button"
+                        className="card-sec-btn sec-btn-desk"
+                        onClick={() => setSelectedBrokerForHub(broker)}
+                        title={`Broker Partner Desk & Q&A for ${broker.name}`}
+                      >
+                        <span>Desk</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      className="card-specs-cta"
-                      onClick={() => setSelectedBrokerForModal(broker)}
-                      aria-label={`View specs for ${broker.name}`}
-                    >
-                      <span>Specs</span>
-                    </button>
+                      <button
+                        type="button"
+                        className="card-sec-btn sec-btn-specs"
+                        onClick={() => setSelectedBrokerForModal(broker)}
+                        aria-label={`View specs for ${broker.name}`}
+                        title="View Full Specifications"
+                      >
+                        <span>Specs</span>
+                      </button>
+                    </div>
                   </div>
                 </motion.article>
               );
