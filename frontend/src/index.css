@@ -163,6 +163,9 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
 }
 
 body {
@@ -172,13 +175,21 @@ body {
     overflow-x: hidden;
     position: relative;
     background-color: var(--bg-page);
+    max-width: 100%;
+    width: 100%;
 }
 
-#root {
+#root,
+.pipwise-app,
+main,
+.pipwise-home-page {
     width: 100%;
+    max-width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
 }
 
 /* Typography Helpers */
@@ -2374,22 +2385,22 @@ input {
     }
 }
 
-@media (max-width: 600px) {
-    .pipwise-nav-floating-wrapper {
-        padding: 0 0.75rem;
-        top: 0.75rem;
-    }
-
+@media (max-width: 768px) {
+    .pipwise-nav-floating-wrapper,
     .pipwise-nav-floating-wrapper.is-scrolled {
-        top: 0.45rem;
+        padding: 0 0.75rem !important;
+        top: 0.75rem !important;
     }
 
-    .pipwise-nav-floating-bar {
-        padding: 0.4rem 0.5rem 0.4rem 1rem;
-    }
-
+    .pipwise-nav-floating-bar,
     .pipwise-nav-floating-bar.is-scrolled {
-        padding: 0.28rem 0.45rem 0.28rem 0.85rem;
+        padding: 0.4rem 0.5rem 0.4rem 1rem !important;
+        gap: 1.25rem !important;
+        border-radius: 14px !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+        max-width: 100% !important;
+        transition: none !important;
     }
 
     .pipwise-nav-floating-bar .pipwise-floating-login-btn {
@@ -2634,12 +2645,13 @@ input {
 .pipwise-robot-squad-section {
     position: relative;
     width: 100%;
+    max-width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 3.2rem 1.5rem 0.25rem;
     z-index: 10;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .pipwise-robot-squad-container {
@@ -2650,6 +2662,7 @@ input {
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 /* ==========================================================================
@@ -2659,8 +2672,10 @@ input {
 .top-brokers-section {
     position: relative;
     width: 100%;
+    max-width: 100%;
     padding: 2.2rem 0 5.5rem;
     background: transparent;
+    overflow: hidden;
 }
 
 .top-brokers-container {
@@ -2983,6 +2998,8 @@ input {
 .top-brokers-carousel-viewport {
     position: relative;
     width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .top-brokers-carousel-track {
@@ -3431,8 +3448,10 @@ input {
 .broker-comp-section {
     position: relative;
     width: 100%;
+    max-width: 100%;
     padding: 2.5rem 0 6rem;
     background: transparent;
+    overflow: hidden;
 }
 
 .broker-comp-container {
@@ -3440,10 +3459,13 @@ input {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 1.75rem;
+    overflow: hidden;
 }
 
 .broker-comp-card {
     position: relative;
+    width: 100%;
+    max-width: 100%;
     border-radius: 28px;
     background: linear-gradient(135deg, #fc5d21 0%, #f35113 45%, #db4004 100%);
     border: 1px solid rgba(255, 255, 255, 0.25);
@@ -3454,7 +3476,7 @@ input {
     grid-template-columns: 1fr 1.35fr;
     gap: 3.5rem;
     align-items: center;
-    overflow: visible;
+    overflow: hidden;
 }
 
 .comp-card-glow {

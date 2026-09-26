@@ -770,3 +770,28 @@
 .purple-body-sway {
   will-change: transform;
 }
+
+/* Mobile Responsive Guardrails — Prevent Bubble and SVG Horizontal Overflow */
+@media (max-width: 600px) {
+  .robot-stage {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .robot-bubble {
+    white-space: normal;
+    text-align: center;
+    max-width: min(calc(100vw - 32px), 320px);
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 6px 12px;
+    border-radius: 14px;
+    top: -48px;
+  }
+
+  .robot-svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+

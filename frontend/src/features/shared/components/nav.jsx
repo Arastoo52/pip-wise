@@ -125,6 +125,21 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isNavHovered, setIsNavHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const linksMouseX = useMotionValue(Infinity);
   const navRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -237,39 +252,43 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
         initial={{
           clipPath: 'inset(0 50% 0 50% round 14px)',
           opacity: 0,
-          y: -10,
-          maxWidth: 945,
+          y: isMobile ? 0 : -10,
+          maxWidth: isMobile ? '100%' : 945,
         }}
         animate={
           heroComplete
             ? {
               clipPath: 'none',
               opacity: 1,
-              y: isScrolled ? -6 : 0,
-              maxWidth: targetMaxWidth,
+              y: isMobile ? 0 : (isScrolled ? -6 : 0),
+              maxWidth: isMobile ? '100%' : targetMaxWidth,
             }
             : {
               clipPath: 'inset(0 50% 0 50% round 14px)',
               opacity: 0,
-              y: -10,
-              maxWidth: 945,
+              y: isMobile ? 0 : -10,
+              maxWidth: isMobile ? '100%' : 945,
             }
         }
-        transition={{
-          maxWidth: {
-            duration: 0.32,
-            ease: [0.16, 1, 0.3, 1],
-          },
-          y: {
-            duration: 0.32,
-            ease: [0.16, 1, 0.3, 1],
-          },
-          clipPath: {
-            duration: 0.85,
-            ease: [0.16, 1, 0.3, 1],
-          },
-          opacity: { duration: 0.5 },
-        }}
+        transition={
+          isMobile
+            ? { duration: 0 }
+            : {
+              maxWidth: {
+                duration: 0.32,
+                ease: [0.16, 1, 0.3, 1],
+              },
+              y: {
+                duration: 0.32,
+                ease: [0.16, 1, 0.3, 1],
+              },
+              clipPath: {
+                duration: 0.85,
+                ease: [0.16, 1, 0.3, 1],
+              },
+              opacity: { duration: 0.5 },
+            }
+        }
         onAnimationComplete={() => {
           if (heroComplete && navRef.current) {
             navRef.current.style.clipPath = 'none';

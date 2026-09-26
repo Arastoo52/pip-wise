@@ -259,3 +259,32 @@
   color: #fc5d21;
   transform: translateY(-1px);
 }
+
+/* Mobile Responsive Positioning — Fixed & Safe in Mobile View */
+@media (max-width: 600px) {
+  .kyc-floating-widget {
+    position: fixed !important;
+    right: 12px !important;
+    left: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .kyc-floating-widget:hover {
+    transform: none !important;
+  }
+
+  .kyc-minimized-pill {
+    position: fixed !important;
+    right: 14px !important;
+    bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+  }
+
+  .kyc-minimized-pill:hover {
+    transform: none !important;
+  }
+}
+
