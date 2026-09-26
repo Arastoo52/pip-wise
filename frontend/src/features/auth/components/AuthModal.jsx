@@ -324,21 +324,12 @@ export const AuthModal = () => {
       const action = await login({ email: email.trim(), password });
       if (loginUser.fulfilled.match(action)) {
         if (action.payload?.requiresOtp) {
-          setResendCooldown(action.payload.cooldownSeconds || 3);
-          if (action.payload?.previewOtp) {
-            setOtp(action.payload.previewOtp.split(""));
-            toast.update(toastId, {
-              type: "success",
-              title: "Code Ready!",
-              message: `Verification code: ${action.payload.previewOtp}`,
-            });
-          } else {
-            toast.update(toastId, {
-              type: "success",
-              title: "4-Digit OTP Sent!",
-              message: `Check ${action.payload?.email || email} for your login verification code.`,
-            });
-          }
+          setResendCooldown(action.payload.cooldownSeconds || 60);
+          toast.update(toastId, {
+            type: "success",
+            title: "4-Digit OTP Sent!",
+            message: `Check ${action.payload?.email || email} for your login verification code.`,
+          });
         } else {
           toast.update(toastId, {
             type: "success",
@@ -351,28 +342,19 @@ export const AuthModal = () => {
       }
     } else {
       otpSourceModeRef.current = "register";
-      const toastId = toast.loading("Sending 4-digit OTP...", "Preparing verification code");
+      const toastId = toast.loading("Sending 4-digit OTP...", "Preparing verification email");
       const action = await register({
         email: email.trim(),
         username: username.trim(),
         password,
       });
       if (registerUser.fulfilled.match(action)) {
-        setResendCooldown(action.payload?.cooldownSeconds || 3);
-        if (action.payload?.previewOtp) {
-          setOtp(action.payload.previewOtp.split(""));
-          toast.update(toastId, {
-            type: "success",
-            title: "Account Created!",
-            message: `Verification code: ${action.payload.previewOtp}`,
-          });
-        } else {
-          toast.update(toastId, {
-            type: "success",
-            title: "4-Digit OTP Sent!",
-            message: `Check ${action.payload?.email || email} for your verification code.`,
-          });
-        }
+        setResendCooldown(action.payload?.cooldownSeconds || 60);
+        toast.update(toastId, {
+          type: "success",
+          title: "4-Digit OTP Sent!",
+          message: `Check ${action.payload?.email || email} for your verification code.`,
+        });
       } else {
         toast.dismiss(toastId);
       }
@@ -466,7 +448,16 @@ export const AuthModal = () => {
                     <motion.input
                       type="text"
                       inputMode="numeric"
+                      pattern="[0-9]*"
                       maxLength={1}
+                      name={`pipwise-otp-${index}`}
+                      id={`pipwise-otp-${index}`}
+                      autoComplete="one-time-code"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-form-type="other"
+                      autoCorrect="off"
+                      spellCheck="false"
                       ref={inputRefs[index]}
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e)}

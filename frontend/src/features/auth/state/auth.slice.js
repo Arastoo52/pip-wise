@@ -43,8 +43,7 @@ export const loginUser = createAsyncThunk(
         return {
           requiresOtp: true,
           email: response.data.email || credentials.email,
-          cooldownSeconds: response.data.cooldownSeconds || 3,
-          previewOtp: response.data.previewOtp,
+          cooldownSeconds: response.data.cooldownSeconds || 60,
         };
       }
       const user = response.data?.user;
@@ -71,8 +70,7 @@ export const registerUser = createAsyncThunk(
         return {
           requiresOtp: true,
           email: response.data.email || credentials.email,
-          cooldownSeconds: response.data.cooldownSeconds || 3,
-          previewOtp: response.data.previewOtp,
+          cooldownSeconds: response.data.cooldownSeconds || 60,
         };
       }
       const user = response.data?.user;

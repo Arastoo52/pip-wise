@@ -235,10 +235,19 @@ const InteractiveDotGrid = ({ theme = 'dark' }) => {
       }
     };
 
+    let cachedRect = null;
+    const updateCachedRect = () => {
+      if (canvas) {
+        cachedRect = canvas.getBoundingClientRect();
+      }
+    };
+    updateCachedRect();
+
     const handlePointerMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current.x = e.clientX - rect.left;
-      mouseRef.current.y = e.clientY - rect.top;
+      if (!cachedRect) updateCachedRect();
+      if (!cachedRect) return;
+      mouseRef.current.x = e.clientX - cachedRect.left;
+      mouseRef.current.y = e.clientY - cachedRect.top;
       mouseRef.current.isHovering = true;
       startAnimationLoop();
     };
@@ -251,12 +260,14 @@ const InteractiveDotGrid = ({ theme = 'dark' }) => {
 
     heroSection.addEventListener('pointermove', handlePointerMove, { passive: true });
     heroSection.addEventListener('pointerleave', handlePointerLeave, { passive: true });
+    window.addEventListener('scroll', updateCachedRect, { passive: true });
 
     // Initial paint is purely static - ZERO reload lag, zero scatter animation
     drawStatic();
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', updateCachedRect);
       heroSection.removeEventListener('pointermove', handlePointerMove);
       heroSection.removeEventListener('pointerleave', handlePointerLeave);
       if (animFrameIdRef.current) {

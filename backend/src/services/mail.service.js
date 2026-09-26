@@ -49,12 +49,9 @@ const getTransporter = () => {
         user,
         pass,
       },
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100,
-      connectionTimeout: 4000,
-      greetingTimeout: 4000,
-      socketTimeout: 5000,
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 20000,
     });
   }
 
@@ -80,7 +77,7 @@ export const verifySmtpConnection = async () => {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(502, 'Failed to establish connection with the SMTP mail server.');
+    throw new ApiError(502, `Failed to establish connection with the SMTP mail server: ${error.message || 'Timeout'}`);
   }
 };
 
@@ -95,7 +92,7 @@ export const sendEmail = async ({ to, subject, html, text }) => {
 
   try {
     const transporter = getTransporter();
-    const fromHeader = `"${config.smtp.fromName}" <${config.smtp.fromEmail}>`;
+    const fromHeader = `"${config.smtp.fromName || 'TradeSafe Brokers'}" <${config.smtp.fromEmail || config.smtp.user}>`;
 
     const info = await transporter.sendMail({
       from: fromHeader,
@@ -105,17 +102,20 @@ export const sendEmail = async ({ to, subject, html, text }) => {
       html,
     });
 
+    console.log(`📧 [Mail Sent Successfully] To: ${to} | MessageId: ${info.messageId}`);
+
     return {
       success: true,
       messageId: info.messageId,
     };
   } catch (error) {
+    console.error(`❌ [Mail Send Failed] To: ${to} | Error:`, error.message);
     if (error instanceof ApiError) {
       throw error;
     }
     throw new ApiError(
       502,
-      'Unable to send verification email at this moment. Please try again shortly.'
+      `Unable to send verification email at this moment (${error.message || 'SMTP service error'}). Please try again shortly.`
     );
   }
 };

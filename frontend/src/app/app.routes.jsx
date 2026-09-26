@@ -1,27 +1,25 @@
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/home.jsx';
+import AllBrokers from '../pages/AllBrokers.jsx';
+import CompareBrokers from '../pages/CompareBrokers.jsx';
+import JoinBroker from '../pages/JoinBroker.jsx';
+import PrivacyPolicy from '../pages/PrivacyPolicy.jsx';
+import AdminDashboard from '../pages/AdminDashboard.jsx';
 import AdminRoute from '../features/auth/components/AdminRoute.jsx';
-
-const AllBrokers = lazy(() => import('../pages/AllBrokers.jsx'));
-const CompareBrokers = lazy(() => import('../pages/CompareBrokers.jsx'));
-const JoinBroker = lazy(() => import('../pages/JoinBroker.jsx'));
-const PrivacyPolicy = lazy(() => import('../pages/PrivacyPolicy.jsx'));
-const AdminDashboard = lazy(() => import('../pages/AdminDashboard.jsx'));
 
 export const AppRoutes = React.memo(({ theme, heroComplete, setHeroComplete, onHeroFinished }) => {
   return (
-    <Suspense fallback={<div style={{ minHeight: '60vh' }} aria-busy="true" />}>
-      <Routes>
-        {/* Protected Admin Routes */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+    <Routes>
+      {/* Protected Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        }
+      />
         <Route
           path="/admin/dashboard"
           element={<Navigate to="/admin" replace />}
@@ -75,7 +73,6 @@ export const AppRoutes = React.memo(({ theme, heroComplete, setHeroComplete, onH
         {/* Fallback to Home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Suspense>
   );
 });
 
