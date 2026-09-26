@@ -234,10 +234,19 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
 
   const navLinks = NAV_LINKS;
 
-  const baseMaxWidth = isScrolled ? 910 : 1020;
-  const hoveredMaxWidth = isScrolled ? 970 : 1080;
-  const searchMaxWidth = isScrolled ? 1040 : 1140;
-  const searchHoverMaxWidth = isScrolled ? 1080 : 1180;
+  const hasUser = Boolean(isAuthenticated);
+  const baseMaxWidth = hasUser
+    ? (isScrolled ? 1050 : 1090)
+    : (isScrolled ? 940 : 1020);
+  const hoveredMaxWidth = hasUser
+    ? (isScrolled ? 1090 : 1130)
+    : (isScrolled ? 990 : 1060);
+  const searchMaxWidth = hasUser
+    ? (isScrolled ? 1150 : 1190)
+    : (isScrolled ? 1050 : 1120);
+  const searchHoverMaxWidth = hasUser
+    ? (isScrolled ? 1190 : 1230)
+    : (isScrolled ? 1090 : 1160);
 
   const targetMaxWidth = searchOpen
     ? (isNavHovered ? searchHoverMaxWidth : searchMaxWidth)
@@ -253,7 +262,7 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
           clipPath: 'inset(0 50% 0 50% round 14px)',
           opacity: 0,
           y: isMobile ? 0 : -10,
-          maxWidth: isMobile ? '100%' : 945,
+          maxWidth: isMobile ? '100%' : targetMaxWidth,
         }}
         animate={
           heroComplete
@@ -267,7 +276,7 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
               clipPath: 'inset(0 50% 0 50% round 14px)',
               opacity: 0,
               y: isMobile ? 0 : -10,
-              maxWidth: isMobile ? '100%' : 945,
+              maxWidth: isMobile ? '100%' : targetMaxWidth,
             }
         }
         transition={
@@ -473,10 +482,10 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             </motion.div>
           </div>
 
-          {/* Theme Toggle Button - Disappears completely on mobile when search is open so it NEVER pokes out */}
+          {/* Theme Toggle Button - Disappears completely on mobile when search is open or on small mobile when user is logged in */}
           <button
             type="button"
-            className={`pipwise-icon-btn pipwise-theme-btn ${searchOpen ? 'is-search-hidden' : ''}`}
+            className={`pipwise-icon-btn pipwise-theme-btn ${searchOpen ? 'is-search-hidden' : ''} ${isAuthenticated ? 'hide-on-mobile-auth' : ''}`}
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
@@ -538,18 +547,10 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
               <Link
                 to="/admin"
                 className="user-badge-name admin-dashboard-text-link"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                }}
                 title="Go to Admin Dashboard"
               >
-                <LayoutDashboard size={13} color="#818cf8" />
-                <span>Dashboard</span>
+                <LayoutDashboard size={13} color="#818cf8" className="admin-badge-icon" />
+                <span className="admin-dashboard-label">Dashboard</span>
               </Link>
               <button
                 type="button"
@@ -563,27 +564,15 @@ const Nav = ({ theme, toggleTheme, heroComplete = false }) => {
             </div>
           ) : (
             <div className="pipwise-user-profile-badge" title={user?.username || 'Trader'}>
-              <span className="user-badge-name" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <span>{user?.username || 'Trader'}</span>
+              <span className="user-badge-name">
+                <span className="user-badge-username">{user?.username || 'Trader'}</span>
                 {user?.isKycVerified && (
                   <span
-                    style={{
-                      background: 'rgba(16, 185, 129, 0.18)',
-                      color: '#10b981',
-                      border: '1px solid rgba(16, 185, 129, 0.4)',
-                      borderRadius: '12px',
-                      padding: '2px 7px',
-                      fontSize: '10.5px',
-                      fontWeight: 800,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '3px',
-                      letterSpacing: '0.02em',
-                    }}
+                    className="user-verified-chip"
                     title="Verified Trader (Aadhaar KYC Approved)"
                   >
                     <CheckCircle2 size={11} strokeWidth={3} />
-                    Verified
+                    <span className="verified-text">Verified</span>
                   </span>
                 )}
               </span>
